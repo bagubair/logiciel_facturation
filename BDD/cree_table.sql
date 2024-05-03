@@ -1,3 +1,14 @@
+
+CREATE TABLE IF NOT EXISTS utilisateur(
+    ID SERIAL PRIMARY KEY,
+    prenom VARCHAR(30),
+    nom VARCHAR(30),
+    nom_utilisateur VARCHAR(30),
+    mot_passe VARCHAR(30),
+    tel VARCHAR(15)
+)
+
+/*
 CREATE TABLE IF NOT EXISTS artisant(
     ID SERIAL INT PRIMARY KEY,
     nom_entreprise VARCHAR(30),
@@ -20,3 +31,5 @@ CREATE TABLE IF NOT EXISTS intervention(
     description VARCHAR(150),
     prix INT,
     materiaux_utilises VARCHAR(100);)
+
+*/

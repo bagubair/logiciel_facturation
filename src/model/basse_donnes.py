@@ -1,10 +1,10 @@
 import psycopg2 as sql
 import os
-from consts import DATA_DIR
+from const import DATA_DIR
 
 
 class BaseDeDonnee:
-    def init(self, dbname, user, password, host='localhost'):
+    def __init__(self, dbname, user, password, host='localhost'):
         self.dbname = dbname
         self.user = user
         self.password = password
@@ -12,12 +12,12 @@ class BaseDeDonnee:
         self.conn = None
         self.cur = None
 
+
+    
+
     def connect(self):
         """
         Pour se connecter à la base de donnée.
-
-        ----------------------------------------------------------
-
         """
 
         self.conn = sql.connect(
@@ -29,12 +29,7 @@ class BaseDeDonnee:
         self.cur = self.conn.cursor()
 
     def disconnect(self):
-        """
-        Pour se déconnecter de la base de donnée.
-
-        ----------------------------------------------------------
-
-        """
+        """Pour se déconnecter de la base de donnée."""
 
         if self.cur:
             self.cur.close()
@@ -42,11 +37,7 @@ class BaseDeDonnee:
             self.conn.close()
 
     def execute_requete(self, requete: str):
-        """
-        Execute une requête SQL et retourne-le résulta.
-
-        ----------------------------------------------------------
-
+        """Execute une requête SQL et retourne-le résulta.
         Args:
             requete: The SQL query to execute.
 
@@ -54,6 +45,7 @@ class BaseDeDonnee:
             liste: une liste de tuples représentant le résulta de la requête.
         """
 
+        self.connect()
         self.cur.execute(requete)
 
         # On va verifier si la requête commence par SELECT ou pas les autres méthodes(INSERT, UPDATE, DELETE)
@@ -62,9 +54,12 @@ class BaseDeDonnee:
         else:
             # On ajoute commit() pour les méthodes CRUD.
             self.conn.commit()
+            self.disconnect()
             return None
 
     def init_table(self):
         fichier_basse = os.path.join(DATA_DIR, "cree_table.sql")
+        self.connect()
         self.cur.execute(open(fichier_basse, 'r').read())
         self.conn.commit()
+        self.disconnect()
