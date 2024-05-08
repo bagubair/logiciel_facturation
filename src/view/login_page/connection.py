@@ -11,12 +11,12 @@ class Connection():
         self.root = root
         self.BDD =BDD
 
-
-    def main_connec(self):
-
-        Login(self.root,self.BDD)
-
         self.root.bind("<<retour_login_clicked>>", self.click_retour_login)
 
+
+    def main_connec(self):
+        Login(self.root,self.BDD)
+
+        
     def click_retour_login(self, event=None):
         self.main_connec()

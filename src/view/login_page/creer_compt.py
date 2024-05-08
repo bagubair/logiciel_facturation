@@ -14,13 +14,7 @@ class CreeCompte():
         self.canvas = canvas
         self.BDD = BDD
 
-        self.prenom = ""
-        self.nom = ""
-        self.username = ""
-        self.mot_de_passe = ""
-        self.confirm_passe = ""
-        self.mail = ""
-        self.tel = ""
+        
         self.root.bind("<Configure>", self.on_configure)
         
         self.mini_page()

@@ -36,7 +36,7 @@ class BaseDeDonnee:
         if self.conn:
             self.conn.close()
 
-    def execute_requete(self, requete: str):
+    def execute_requete(self, requete: str, valeurs: tuple = None):
         """Execute une requête SQL et retourne-le résulta.
         Args:
             requete: The SQL query to execute.
@@ -46,7 +46,11 @@ class BaseDeDonnee:
         """
 
         self.connect()
-        self.cur.execute(requete)
+        if valeurs:
+            self.cur.execute(requete, valeurs)
+        else:
+            self.cur.execute(requete)
+        
 
         # On va verifier si la requête commence par SELECT ou pas les autres méthodes(INSERT, UPDATE, DELETE)
         if requete.strip().upper().startswith('SELECT'):

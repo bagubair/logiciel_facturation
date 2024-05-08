@@ -6,23 +6,43 @@ CREATE TABLE IF NOT EXISTS utilisateur(
     nom_utilisateur VARCHAR(30),
     mot_passe VARCHAR(30),
     tel VARCHAR(15)
-)
-
-/*
-CREATE TABLE IF NOT EXISTS artisant(
-    ID SERIAL INT PRIMARY KEY,
+);
+CREATE TABLE IF NOT EXISTS entreprise(
     nom_entreprise VARCHAR(30),
-    adresse VARCHAR(50),
-    telephone VARCHAR(15),
-    mail VARCHAR(25);)
+    adresse TEXT,
+    mail VARCHAR(25),
+    telephone VARCHAR(20),
+    nb_ser VARCHAR(20),
+    logo TEXT,
+    id_utilisateur INT REFERENCES utilisateur(ID) PRIMARY KEY -- ici referance a table utilisature ,, et prend la valeur de collon nom utilisateur , on relie chaque facture par l'artisant (entrprise)
+);
 
 CREATE TABLE IF NOT EXISTS client(
-    ID SERIAL INT PRIMARY KEY,
-    nom VARCHAR(15),
-    prenom VARCHAR(15),
-    adresse VARCHAR(50),
-    telephone VARCHAR(15),
-    mail VARCHAR(25);)
+    num VARCHAR(15) PRIMARY KEY, -- numero de client commence par CL donc c'est une VARCHAR
+    nom VARCHAR(25),
+    prenom VARCHAR(25),
+    adresse TEXT,
+    tel_fax VARCHAR(20),
+    mobil VARCHAR(20),
+    coment TEXT,
+    id_utilisateur INT REFERENCES utilisateur(ID)  -- ici referance a table utilisature ,, et prend la valeur de collon nom utilisateur , on relie l'utilisature avec ces clients 
+);
+
+
+CREATE TABLE IF NOT EXISTS facture(
+    num VARCHAR(15) PRIMARY KEY,  -- numero de facture commence par FAC donc c'est une VARCHAR
+    date_fac VARCHAR(20),  -- c'est une VARCHAR cet entree par Entry 
+    intervens TEXT, --ici tous les interventios de la facture ,, sra dans un lise , mais on va metre ici en type str 
+    remarque TEXT,
+    etat_fac INT,
+    net_pay INT,
+    info_pay TEXT,  -- il eura la date d'echnge et mod de pay
+    infos_banque TEXT,
+    sign TEXT,
+    id_utilisateur INT REFERENCES utilisateur(ID) , -- ici referance a table utilisature ,, et prend la valeur de collon nom utilisateur , on relie chaque facture par l'artisant(entrprise )
+    ref_client VARCHAR(15) REFERENCES client(num) -- ici referance au client , pren num client
+);
+/*
 
 CREATE TABLE IF NOT EXISTS intervention(
     ID SERIAL INT PRIMARY KEY,

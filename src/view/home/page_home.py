@@ -1,23 +1,19 @@
 import os
 import tkinter as tk
 
-#from PIL import Image, ImageTk
 from const import *
-#from .tools.image_size import size_photo
-#from view.home.aide import Aide
-#from view.home.quit_button import Quitter
+from view.home.facture.history_fact import HistoryFacture
 
 """
-La classe BackGroundMain initialise la page principale du jeu (première page),
-qui va contenir les boutons 'Quitter' et 'Aide'et afficher le nom du jeu 'EN GARDE'.
 """
 class Home:
-    def __init__(self, root):
+    def __init__(self, root,BDD, id_utilisateur):
         self.root = root
+        self.BDD = BDD
+        self.id_utilisateur = id_utilisateur
 
         self.root.after(10, self.initialisation)
         self.root.bind("<Configure>", self.on_configure)
-
 
     def initialisation(self):
         long = self.root.winfo_width()
@@ -36,54 +32,18 @@ class Home:
         #preciser les noms et commandes des button
         self.list_button[0].config(text="Facture", command=lambda:self.facture() )
         self.list_button[1].config(text="Devis", command=lambda: self.devis())
-        self.list_button[2].config(text="Articles", command=lambda:self.article())
-        self.list_button[3].config(text="Clients", command=lambda: self.client())
-        self.list_button[4].config(text="Paramètres", command=lambda: self.parametre())
+        self.list_button[2].config(text="Clients", command=lambda:self.client())
+        self.list_button[3].config(text="Paramètres", command=lambda: self.parametre())
+        self.list_button[4].config(text="Se Déconnecter", command=lambda: self.deconnecter())
 
-        self.button_active =0
-        # Créer un Canvas
+        self.button_active = 0 #on utilise ce variable pour visualiser au utilisateur quel page est ouvert ( puisque on a 5 pages )
+
+        # Créer un Canvas( ce canvas va placer en sous du frame qui contien les button des pages )
         self.canvas_home = tk.Canvas(self.root, width=long, height=haut,bg=COULEUR_PRINCIPALE)
         self.canvas_home.place(x=0, y=(haut // 11.42))
-        #root.grid_rowconfigure(0, weight=1)  # Poids pour permettre le redimensionnement en hauteur
-        #root.grid_columnconfigure(0, weight=1)  # Poids pour permettre le redimensionnement en largeur
+
 
         
-
-
-    def facture(self):
-        """on change le couluer de button active juste pour montrer que c'est lui activé """
-        self.list_button[self.button_active].config(bg=COULEUR_BOUTON,fg=COULEUR_TEXT_BOUTON)
-        self.list_button[0].config(bg=COULEUR_TEXT_BOUTON,fg=COULEUR_BOUTON)
-        self.button_active = 0
-        
-
-    def devis(self):
-        """on change le couluer de button active juste pour montrer que c'est lui activé """
-        self.list_button[self.button_active].config(bg=COULEUR_BOUTON,fg=COULEUR_TEXT_BOUTON)
-        self.list_button[1].config(bg=COULEUR_TEXT_BOUTON,fg=COULEUR_BOUTON)
-        self.button_active = 1
-        
-
-    def article(self):
-        """on change le couluer de button active juste pour montrer que c'est lui activé """
-        self.list_button[self.button_active].config(bg=COULEUR_BOUTON,fg=COULEUR_TEXT_BOUTON)
-        self.list_button[2].config(bg=COULEUR_TEXT_BOUTON,fg=COULEUR_BOUTON)
-        self.button_active = 2
-        
-    def client(self):
-        """on change le couluer de button active juste pour montrer que c'est lui activé """
-        self.list_button[self.button_active].config(bg=COULEUR_BOUTON,fg=COULEUR_TEXT_BOUTON)
-        self.list_button[3].config(bg=COULEUR_TEXT_BOUTON,fg=COULEUR_BOUTON)
-        self.button_active = 3
-        
-
-    def parametre(self):
-        """on change le couluer de button active juste pour montrer que c'est lui activé """
-        self.list_button[self.button_active].config(bg=COULEUR_BOUTON,fg=COULEUR_TEXT_BOUTON)
-        self.list_button[4].config(bg=COULEUR_TEXT_BOUTON,fg=COULEUR_BOUTON)
-        self.button_active = 4
-        
-
     def on_configure(self, event):
         if (self.canvas_home) and (self.frame_button):
             # Recalculer les dimensions de la fenêtre
@@ -94,4 +54,47 @@ class Home:
             self.frame_button.place(x=0, y=0)
             self.canvas_home.config(width=long, height=haut)
             self.canvas_home.place(x=0, y=(haut // 11.42))
-           
+
+
+    # ici on a tous les fonction des page chage fonction s'occupe le changment du page , et le page ouvert le couleur de button sera orange
+
+    def facture(self):
+        """on change le couluer de button active juste pour montrer que c'est lui activé """
+        self.list_button[self.button_active].config(bg=COULEUR_BOUTON,fg=COULEUR_TEXT_BOUTON)
+        self.list_button[0].config(bg=COULEUR_TEXT_BOUTON,fg=COULEUR_BOUTON)
+        self.button_active = 0 # garde le num de button active acutule , pour que si on change le page , on retour la couleur de ce button 
+        self.canvas_home.destroy()
+        HistoryFacture(self.root,self.frame_button,self.BDD, self.id_utilisateur) #defini dans fichier(history_fact.py) qu'est dans repertoire [facture]
+        
+
+    def devis(self):
+        """on change le couluer de button active juste pour montrer que c'est lui activé """
+        self.list_button[self.button_active].config(bg=COULEUR_BOUTON,fg=COULEUR_TEXT_BOUTON)
+        self.list_button[1].config(bg=COULEUR_TEXT_BOUTON,fg=COULEUR_BOUTON)
+        self.button_active = 1 # garde le num de button active acutule , pour que si on change le page , on retour la couleur de ce button
+        
+        
+
+    def client(self):
+        """on change le couluer de button active juste pour montrer que c'est lui activé """
+        self.list_button[self.button_active].config(bg=COULEUR_BOUTON,fg=COULEUR_TEXT_BOUTON)
+        self.list_button[2].config(bg=COULEUR_TEXT_BOUTON,fg=COULEUR_BOUTON)
+        self.button_active = 2 # garde le num de button active acutule , pour que si on change le page , on retour la couleur de ce button
+        self.canvas_home.destroy()
+
+        
+    def parametre(self):
+        """on change le couluer de button active juste pour montrer que c'est lui activé """
+        self.list_button[self.button_active].config(bg=COULEUR_BOUTON,fg=COULEUR_TEXT_BOUTON)
+        self.list_button[3].config(bg=COULEUR_TEXT_BOUTON,fg=COULEUR_BOUTON)
+        self.button_active = 3 # garde le num de button active acutule , pour que si on change le page , on retour la couleur de ce button
+        
+
+    def deconnecter(self):
+        """on change le couluer de button active juste pour montrer que c'est lui activé """
+        self.list_button[self.button_active].config(bg=COULEUR_BOUTON,fg=COULEUR_TEXT_BOUTON)
+        self.list_button[4].config(bg=COULEUR_TEXT_BOUTON,fg=COULEUR_BOUTON)
+        self.button_active = 4 # garde le num de button active acutule , pour que si on change le page , on retour la couleur de ce button
+        
+
+    

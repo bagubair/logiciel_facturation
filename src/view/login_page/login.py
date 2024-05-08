@@ -18,15 +18,14 @@ class Login:
         self.root.after(100, self.initialisation)
         self.root.bind("<Configure>", self.on_configure)
 
+
     def initialisation(self):
         # Maintenant, récupérez les dimensions de la fenêtre après qu'elle ait été affichée
         self.largeur = self.root.winfo_width()
         self.hauteur = self.root.winfo_height()
-
         #on calcule les coordonne de centre canvas pour mettre le frame 
         x = int((self.largeur ) / 2)
         y = int((self.hauteur) / 2)
-
         # Création du canvas et du frame avec les dimensions récupérées
         self.cree_canvas()
         self.cree_frame(x,y)
@@ -37,10 +36,8 @@ class Login:
         self.canvas.grid(row=0, column=0, sticky="nsew")
 
     def cree_frame(self,x,y):
-        
         self.frame_login = tk.Frame(self.canvas, bg=COULEUR_CANVAS)
-        self.frame_id = self.canvas.create_window(x, y, window=self.frame_login, anchor="center")
-
+        self.canvas.create_window(x, y, window=self.frame_login, anchor="center")
         # Création des widgets
         self.label_username = tk.Label(self.frame_login, text="Nom d'utilisateur :",font=(POLICE, 10),bg=COULEUR_CANVAS)
         self.entry_username = tk.Entry(self.frame_login)
@@ -60,22 +57,16 @@ class Login:
         self.button_create_account.grid(row=3, column=0, columnspan=2, padx=10, pady=5, sticky="we")
 
 
-    
     def on_configure(self, event):
         if self.canvas:
             # Recalculer les dimensions de la fenêtre
             self.largeur = self.root.winfo_width()
             self.hauteur = self.root.winfo_height()
 
-
             self.canvas.config(width=self.largeur, height=self.hauteur)
             x = int(self.root.winfo_width() / 2.7)
             y = int(self.root.winfo_height() / 2.8)
             self.frame_login.place(x=x, y=y)
-           
-            
-        
-
 
     def login(self):
         # Méthode à exécuter lorsque le bouton "Se connecter" est cliqué
@@ -89,26 +80,13 @@ class Login:
         elif(str(password) != str(verifie_compt[0][1])):
             messagebox.showerror("Erreur", "Mot de passe incorrect")
         else:
-            self.canvas = None
-            self.frame_login.destroy()
-            #self.canvas.delete(self.frame_id)
-            Home(self.root)
+            self.canvas.destroy()
+            id_utilisateur = int(self.BDD.execute_requete(f"SELECT ID FROM utilisateur WHERE nom_utilisateur = '{username}';")[0][0])
+            #on prend l'ID d'utilisatuer pour relier tous les traveil dans avec ce ID 
+            Home(self.root,self.BDD, id_utilisateur) #defini dans fichier (page_home.py)
         
     def create_account(self):
-        self.canvas.delete(self.frame_id)
-        CreeCompte(self.root,self.canvas,self.BDD)
-        
+        self.frame_login.destroy()
+        CreeCompte(self.root,self.canvas,self.BDD) #defini dans fichier ( cree_compt.py )
 
 
-# Création de la fenêtre principale
-if __name__ == "__main__":
-    root = tk.Tk()
-    
-    root.title("Page de Connexion")
-    root.geometry(f"{LONGUEUR}x{HAUTEUR}")
-    
-    
-    premiere_page = Login(root)
-
-    
-    root.mainloop()

@@ -7,6 +7,8 @@ COULEUR_PRINCIPALE = "#E2E2E2"  # Couleur principale de lapplication (coulur lig
 COULEUR_CANVAS = "#BBBBBB"
 COULEUR_BOUTON = "#001F5A"
 COULEUR_TEXT_BOUTON = "#F3890B"
+COULEUR_ENTRY = "gray"
+COULEUR_LABEL = "lightgray"
 POLICE = "Palatino Linotype"  # Police principale de l'application
 
 PROJ_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

@@ -12,6 +12,7 @@ class RootPrincipal:
         self.root = tk.Tk()
         self.root.geometry(f"{LONGUEUR}x{HAUTEUR}")
         self.root["bg"] = COULEUR_PRINCIPALE
+        self.root.option_add('*font', (POLICE, 8,"bold"))
         self.root.minsize(LONGUEUR, HAUTEUR)
         self.root.title("Facturation")
         self.root.protocol("WM_DELETE_WINDOW", self.root.destroy)
