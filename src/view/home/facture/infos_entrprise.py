@@ -94,8 +94,13 @@ class InfosEntreprise():
         )
         if self.chemin_logo:
             try:
-                # Ouvrir l'image avec PIL
+                origin_image = Image.open(self.chemin_logo)
+                copie_image = origin_image.copy() #on crre un copie pour mettre dans donner de logiciel
+                copie_image.save(f"DATA/logo_{self.id_utilisateur}.png")
+
+                self.chemin_logo = os.path.join(DATA_DIR, f"logo_{self.id_utilisateur}.png")
                 self.image_logo = size_photo(self.chemin_logo, 220,150)
+                
                 if self.logo:
                     self.canv_fact.delete("logo")
                 # Créer une nouvelle image sur le canevas

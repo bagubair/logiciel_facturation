@@ -10,7 +10,7 @@ def effacer_indicatif(entry_widget, indicatif):
     """on efface le text d'indication et remplace par le text entrée par utilisateur"""
     if entry_widget.get() == indicatif:
         entry_widget.delete(0, tk.END)
-        entry_widget.config(fg=COULEUR_BOUTON)  # Changer la couleur du texte entré par l'utilisateur
+        entry_widget.config(fg="black")  # Changer la couleur du texte entré par l'utilisateur
 
 
 

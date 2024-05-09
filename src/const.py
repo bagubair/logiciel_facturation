@@ -12,4 +12,4 @@ COULEUR_LABEL = "lightgray"
 POLICE = "Palatino Linotype"  # Police principale de l'application
 
 PROJ_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.path.join(PROJ_DIR, "BDD")
+DATA_DIR = os.path.join(PROJ_DIR, "DATA")

@@ -87,13 +87,13 @@ class AjouteClient():
             mob = self.nuplet_client[5]
             coment = self.nuplet_client[6]
 
-            self.entr_num.insert(0, f"{num_cl}")
-            self.entr_nom.insert(0, f"{nom_cl}")
-            self.entr_prenom.insert(0, f"{pren_cl}")
-            self.entr_adres.insert(tk.END, f"{adr}")
-            self.entr_fixe.insert(0, f"{fix}")
-            self.entr_mobil.insert(0, f"{mob}")
-            self.entr_comentair.insert(tk.END, f"{coment}")
+            self.entr_num.insert(0, num_cl)
+            self.entr_nom.insert(0, nom_cl)
+            self.entr_prenom.insert(0, pren_cl)
+            self.entr_adres.insert(tk.END, adr)
+            self.entr_fixe.insert(0, fix)
+            self.entr_mobil.insert(0, mob)
+            self.entr_comentair.insert(tk.END, coment)
 
         else:
 

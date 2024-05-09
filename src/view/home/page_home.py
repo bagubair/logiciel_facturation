@@ -4,6 +4,7 @@ import tkinter as tk
 from const import *
 from view.home.facture.history_fact import HistoryFacture
 from view.home.client.client import Client
+from view.home.parametre.parametre import Parametre
 
 """
 """
@@ -95,13 +96,13 @@ class Home:
         self.list_button[self.button_active].config(bg=COULEUR_BOUTON,fg=COULEUR_TEXT_BOUTON)
         self.list_button[3].config(bg=COULEUR_TEXT_BOUTON,fg=COULEUR_BOUTON)
         self.button_active = 3 # garde le num de button active acutule , pour que si on change le page , on retour la couleur de ce button
-        
+        self.canvas_home.destroy()
+        Parametre(self.root,self.frame_button,self.BDD, self.id_utilisateur) #defini dans gere_compte.py
 
     def deconnecter(self):
-        """on change le couluer de button active juste pour montrer que c'est lui activé """
-        self.list_button[self.button_active].config(bg=COULEUR_BOUTON,fg=COULEUR_TEXT_BOUTON)
-        self.list_button[4].config(bg=COULEUR_TEXT_BOUTON,fg=COULEUR_BOUTON)
-        self.button_active = 4 # garde le num de button active acutule , pour que si on change le page , on retour la couleur de ce button
+        self.canvas_home.destroy()
+        self.frame_button.destroy
+        self.root.event_generate("<<retour_login_clicked>>")
         
 
 
