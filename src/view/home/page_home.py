@@ -3,6 +3,7 @@ import tkinter as tk
 
 from const import *
 from view.home.facture.history_fact import HistoryFacture
+from view.home.client.client import Client
 
 """
 """
@@ -12,13 +13,18 @@ class Home:
         self.BDD = BDD
         self.id_utilisateur = id_utilisateur
 
+        self.list_button = []
+
         self.root.after(10, self.initialisation)
         self.root.bind("<Configure>", self.on_configure)
+        self.root.bind("<<retour_history_fact>>", lambda event: self.retour_history_fact())
+        self.root.bind("<<retour_page_client>>", lambda event: self.retour_page_client())
+
 
     def initialisation(self):
         long = self.root.winfo_width()
         haut = self.root.winfo_height()
-        self.list_button = []
+        
         self.frame_button = tk.Frame(self.root, width=long, height=(haut // 11.42), bg=COULEUR_BOUTON)
         self.frame_button.grid_propagate(False)  # Empêcher le frame de redimensionner ses cellules
         self.frame_button.place(x=0, y=0)
@@ -81,6 +87,7 @@ class Home:
         self.list_button[2].config(bg=COULEUR_TEXT_BOUTON,fg=COULEUR_BOUTON)
         self.button_active = 2 # garde le num de button active acutule , pour que si on change le page , on retour la couleur de ce button
         self.canvas_home.destroy()
+        Client(self.root,self.frame_button,self.BDD, self.id_utilisateur) #defini dans fichier client , qui existe dans repertoir client 
 
         
     def parametre(self):
@@ -97,4 +104,19 @@ class Home:
         self.button_active = 4 # garde le num de button active acutule , pour que si on change le page , on retour la couleur de ce button
         
 
-    
+
+    #fonctions des event de retour arier 
+    def retour_history_fact(self,event=None):
+        self.list_button[self.button_active].config(bg=COULEUR_BOUTON,fg=COULEUR_TEXT_BOUTON)
+        self.list_button[0].config(bg=COULEUR_TEXT_BOUTON,fg=COULEUR_BOUTON)
+        self.button_active = 0 # garde le num de button active acutule , pour que si on change le page , on retour la couleur de ce button 
+        self.canvas_home.destroy()
+        HistoryFacture(self.root,self.frame_button,self.BDD, self.id_utilisateur) #defini dans fichier(history_fact.py) qu'est dans repertoire [facture]
+        
+    def retour_page_client(self, event=None):
+        self.list_button[self.button_active].config(bg=COULEUR_BOUTON,fg=COULEUR_TEXT_BOUTON)
+        self.list_button[2].config(bg=COULEUR_TEXT_BOUTON,fg=COULEUR_BOUTON)
+        self.button_active = 2 # garde le num de button active acutule , pour que si on change le page , on retour la couleur de ce button
+        self.canvas_home.destroy()
+        Client(self.root,self.frame_button,self.BDD, self.id_utilisateur) #defini dans fichier client , qui existe dans repertoir client 
+

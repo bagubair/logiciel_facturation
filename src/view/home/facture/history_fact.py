@@ -60,7 +60,7 @@ class HistoryFacture:
         
 
         # Création de la listebox
-        self.listbox = tk.Listbox(self.canvas, selectmode=tk.SINGLE,  width=650, height=400)
+        self.listbox = tk.Listbox(self.canvas, selectmode=tk.SINGLE,  width=650, height=400,font=(POLICE,10))
         self.canvas.create_window(500, 200, width=950, height=400, anchor="n", window=self.listbox, tags="listbox")
 
         self.lire = tk.Button(self.canvas, width=10, height=2,text="Lire", command=lambda:self.lire_fact() ,bg=COULEUR_PRINCIPALE,font=(POLICE, 11,"bold"))
@@ -87,8 +87,7 @@ class HistoryFacture:
 
 
         self.recherhe_fact.bind("<Return>",lambda event: self.cherche_facture())
-        #self.root.bind("<<retour_history_fact>>", self.retour_history_fact())
-
+        
 
 
 
@@ -215,8 +214,7 @@ class HistoryFacture:
     def supprim_fact(self):
         pass
 
-    def retour_history_fact(self,event=None):
-        self.initialisation()
+    
     
     def on_configure(self, event):
         if (self.canvas):

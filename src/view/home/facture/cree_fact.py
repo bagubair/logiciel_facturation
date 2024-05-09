@@ -175,13 +175,16 @@ class Facture:
             signature = None
 
         #requet de checher d'abord si la client deaje dans BDD , sinon on va l'ajouter
-        requet_cl = f"SELECT num FROM client WHERE num = '{ref_client}';"
+        requet_cl = f"SELECT num FROM client WHERE num = '{ref_client}' AND id_utilisateur = '{self.id_utilisateur}';"
         requet_cl = self.BDD.execute_requete(requet_cl)
         if (len(requet_cl) == 0 ):
             #si le client n'est pas encore dans table client , on va l'ajouter
-            requet_cl = f"INSERT INTO client (num, nom, prenom, adresse, tel_fax, mobil, id_utilisateur) \
-                    VALUES('{ref_client}', '{donnees_client[0]}', '{donnees_client[1]}', '{donnees_client[2]}', '{donnees_client[3]}', '{donnees_client[4]}' , '{self.id_utilisateur}' )"
-            self.BDD.execute_requete(requet_cl)
+            requet_cl = "INSERT INTO client (num, nom, prenom, adresse, tel_fax, mobil, id_utilisateur) \
+                    VALUES(%s, %s, %s, %s, %s, %s, %s )" 
+
+            valeurs = (ref_client, donnees_client[0], donnees_client[1], donnees_client[2], donnees_client[3], donnees_client[4] , self.id_utilisateur )
+
+            self.BDD.execute_requete(requet_cl,valeurs)
         else:
             pass #si deja existe 
 
