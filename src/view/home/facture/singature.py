@@ -28,6 +28,9 @@ class SignatureFrame():
         self.signature_image = Image.new("RGB", (250, 130), COULEUR_LABEL)
         self.draw = ImageDraw.Draw(self.signature_image)
 
+        self.canv_fact.update_idletasks()  
+        self.canv_fact.config(scrollregion=self.canv_fact.bbox("all"))
+
     def trace_signature(self, event):
         x, y = event.x, event.y
         r = 1

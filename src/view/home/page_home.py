@@ -21,6 +21,8 @@ class Home:
         self.root.bind("<Configure>", self.on_configure)
         self.root.bind("<<retour_history_fact>>", lambda event: self.retour_history_fact())
         self.root.bind("<<retour_page_client>>", lambda event: self.retour_page_client())
+        self.root.bind("<<retour_page_devis>>", lambda event: self.retour_page_devis())
+
 
 
     def initialisation(self):
@@ -123,3 +125,10 @@ class Home:
         self.canvas_home.destroy()
         Client(self.root,self.frame_button,self.BDD, self.id_utilisateur) #defini dans fichier client , qui existe dans repertoir client 
 
+    def retour_page_devis(self, event=None):
+        self.list_button[self.button_active].config(bg=COULEUR_BOUTON,fg=COULEUR_TEXT_BOUTON)
+        self.list_button[1].config(bg=COULEUR_TEXT_BOUTON,fg=COULEUR_BOUTON)
+        self.button_active = 1 # garde le num de button active acutule , pour que si on change le page , on retour la couleur de ce button
+        
+        self.canvas_home.destroy()
+        Devis(self.root,self.frame_button,self.BDD, self.id_utilisateur)

@@ -12,6 +12,7 @@ class Article():
         self.nb = nb
         self.parent = parent
         self.encien_art = encien_art #dans cas modifier une facture 
+        self.info = []
         
     
         self.init_article()
@@ -76,6 +77,20 @@ class Article():
         
         self.total_TC = tk.Label(self.canv_fact, text=f"{self.get_TTC(prix,qnt,tva)} €",bg=COULEUR_LABEL)
         self.id_ttc = self.canv_fact.create_window(900, self.y, anchor="nw", window=self.total_TC,tags=f"get_totC_{self.nb}")
+    
+    def __getitem__(self, index):
+        return self.info[index]
+
+    def update_list_infos(self):
+        descrip = self.entry_des.get("1.0", "end-1c")
+        prix_unit = self.entry_prix.get() if est_nombre( self.entry_prix.get() ) else "0"
+        qnt = self.entry_qnt.get() if est_nombre( self.entry_qnt.get() )  else "0"
+        tva = self.prix_tva.get() if est_nombre( self.prix_tva.get() ) else "0"
+
+        prix_ht = self.get_total_ht(prix_unit,qnt)
+        prix_ttc = self.get_TTC(prix_unit,qnt,tva)
+
+        self.info = [descrip, prix_unit, qnt, tva, prix_ht, prix_ttc]
 
     def get_info(self):
         descrip = self.entry_des.get("1.0", "end-1c")
@@ -86,7 +101,9 @@ class Article():
         prix_ht = self.get_total_ht(prix_unit,qnt)
         prix_ttc = self.get_TTC(prix_unit,qnt,tva)
 
-        return [descrip, prix_unit, qnt,tva, prix_ht,prix_ttc]
+        self.update_list_infos()
+
+        return [descrip, prix_unit, qnt, tva, prix_ht, prix_ttc]
 
 
     def via_parent(self):
@@ -146,4 +163,7 @@ class Article():
 
         self.total_ht.config(text=f"{ht} €")
         self.total_TC.config(text=f"{ttc} €")
+        
+        self.update_list_infos()
+        self.parent.modif_element(self.nb, self.info)
         self.parent.calcule_total() #on recalcule le somme total 

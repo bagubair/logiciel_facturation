@@ -42,6 +42,14 @@ class Devis():
         self.listbox = tk.Listbox(self.canvas, selectmode=tk.SINGLE,  width=1090, height=500, font=(POLICE,10))
         self.canvas.create_window(600, 115, width=1090, height=500, anchor="n", window=self.listbox, tags="listbox")
 
+        requet_devis = f"SELECT devis.num, client.nom, client.prenom, devis.montant FROM client, devis WHERE client.num = devis.ref_client AND devis.id_utilisateur = {self.id_utilisateur}"
+        requet_devis  = self.BDD.execute_requete( requet_devis )
+        
+        for devis in requet_devis:
+            nom_client = f"{ devis[1]} + {devis[2]}"
+            format_info = f"{'':<15}{(devis[0] + (len(devis[0])%8)*" ")[0:8] :<18}{(nom_client + (len(nom_client)%25)*" ")[0:25]:<26}{(devis[2] + (len(devis[2])%10)*" ")[0:10]:>5}"
+            self.listbox.insert(tk.END, format_info)
+
 
 
         self.ajoute = tk.Button(self.canvas, width=11, height=2,text="Creer Devis", command=lambda:self.ajoute_devis() ,bg=COULEUR_PRINCIPALE,font=(POLICE, 11,"bold"))
@@ -60,6 +68,21 @@ class Devis():
     def ajoute_devis(self):
         self.canvas.destroy()
         CreeDevis(self.root,self.frame_button,self.BDD, self.id_utilisateur) #defini dans  (cree_devis.py)
+
+    def modf_devis(self):
+        indice_devis = self.listbox.curselection()
+        if indice_devis:
+            format_box =self.listbox.get(indice_devis)
+            num_devis = format_box.split()[0]
+            requet_devis = f"SELECT * FROM devis WHERE num = '{num_devis}' AND id_utilisateur = '{self.id_utilisateur}';"
+            requet_devis = self.BDD.execute_requete(requet_devis)[0]
+            print(requet_devis)
+            self.canvas.destroy()
+            CreeDevis(self.root,self.frame_button,self.BDD, self.id_utilisateur,requet_devis) #defini dans  (cree_devis.py)
+
+        else:
+            messagebox.showerror("Erreur", "Vous devez sélectionner une facture.")
+
 
 
 

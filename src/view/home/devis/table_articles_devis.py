@@ -10,18 +10,22 @@ from view.home.facture.article import Article
 
 
 class TableArticleDevis():
-    def __init__(self,canvas,pos_vertical, encien_valeur_table=None, encien_val_pay=None):
+    def __init__(self,canvas,pos_vertical, encien_valeur=None):
 
         self.canv_devis = canvas
         self.y = pos_vertical
-        self.encien_valeur_table = encien_valeur_table
-        self.encien_val_pay = encien_val_pay
+        self.encien_valeur = encien_valeur
 
-        self.total_ht = 0.0
-        self.total_ttc = 0.0
+    
+        if(self.encien_valeur):
+            self.total_ht = self.encien_valeur[1]
+            self.total_ttc = self.encien_valeur[2]
+        else:
+            self.total_ht = 0.0
+            self.total_ttc = 0.0
 
         self.info_table_articles()
-        self.inite_infos_pay()
+        self.inite_prix_total()
 
 
     def info_table_articles(self):
@@ -47,8 +51,8 @@ class TableArticleDevis():
         ligne_2 = self.canv_devis.create_line(15,415, 990, 415, fill="black")
         self.nb = 0 #pour conter numbre des article
 
-        if(self.encien_valeur_table):
-            self.list_article = self.encien_valeur_table
+        if(self.encien_valeur):
+            self.list_article = self.encien_valeur[0]
             for encien_art in self.list_article:
                 Article(self.canv_devis, self.y, self.nb,self, encien_art)
                 self.y += 100
@@ -67,24 +71,16 @@ class TableArticleDevis():
         
         
     
-    def inite_infos_pay(self):
+    def inite_prix_total(self):
         # Total HT, TVA, Total TTC, etc.
         self.total_ht_label = tk.Label(self.canv_devis, bg=COULEUR_LABEL)
         self.canv_devis.create_window(860, (self.y +85) , anchor="n", window=self.total_ht_label,tags="Total_HT")
+        self.total_ht_label.config(text=f"   Total HT :   {self.total_ht } € ")
 
         self.total_ttc_label = tk.Label(self.canv_devis,bg=COULEUR_LABEL)
         self.canv_devis.create_window(860, (self.y +110) , anchor="n", window=self.total_ttc_label,tags="Total_TTC")
-
-        
-        
-        if (self.encien_val_pay):
-            self.total_ht_label.config(text=f"   Total HT :   {self.encien_val_pay[0] } € ")
-            self.total_ttc_label.config(text=f"   Total TTC :  {self.encien_val_pay[1] } €")
+        self.total_ttc_label.config(text=f"   Total TTC :  {self.total_ht } €")
             
-        else:
-            self.total_ht_label.config(text=f"   Total HT :   {self.total_ht } € ")
-            self.total_ttc_label.config(text=f"   Total TTC :  {self.total_ttc } €")
-
     
     def ajoute_article(self):
         Article(self.canv_devis, self.y, self.nb,self)
@@ -100,6 +96,12 @@ class TableArticleDevis():
 
         self.canv_devis.update_idletasks()  
         self.canv_devis.configure(scrollregion=self.canv_devis.bbox("all"))
+
+
+    def modif_element(self, nb, new_info):
+        """ cette fonction pour modifier un element dans liste article """
+        self.list_article[nb] = new_info
+
 
 
     def supprime_article(self, indx):
@@ -131,15 +133,14 @@ class TableArticleDevis():
         articles = []
         total_ht = 0
         total_ttc = 0
-        if(self.encien_valeur_table):
-            articles.append(self.encien_valeur_table)
-            self.total_ht += self.encien_val_pay[0]
-            self.total_ttc += self.encien_val_pay[1]
-            #pour nouvelle class ajoute , on appel comme une class ,;;; on parcourir dans notre liste par indice, aprtier de premier nouvelle article
-            for idx_new_article in range(len(self.encien_valeur_table) , len(self.list_article)):
-                articles.append(self.list_article[idx_new_article].get_info())
-                self.total_ht += self.list_article[idx_new_article].get_info()[4]
-                self.total_ttc += self.list_article[idx_new_article].get_info()[5]
+        if(self.encien_valeur):
+            for artcl in self.list_article:
+                articles.append(artcl)
+                total_ht += artcl[4]
+                total_ttc += artcl[5]
+            
+            
+            
             
         else:
             for atricle in self.list_article:
@@ -152,13 +153,14 @@ class TableArticleDevis():
     def calcule_total(self):
         self.total_ht = 0
         self.total_ttc = 0
-        if(self.encien_valeur_table):
-            self.total_ht += self.encien_val_pay[0]
-            self.total_ttc += self.encien_val_pay[1]
-            #pour nouvelle class ajoute , on appel comme une class ,;;; on parcourir dans notre liste par indice, aprtier de premier nouvelle article
-            for idx_new_article in range(len(self.encien_valeur_table)-1 , len(self.list_article)):
-                self.total_ht += self.list_article[idx_new_article].get_info()[4]
-                self.total_ttc += self.list_article[idx_new_article].get_info()[5]
+        if(self.encien_valeur):
+            for artcl in self.list_article:
+                print(artcl)
+                self.total_ht += artcl[4]
+                
+                self.total_ttc += artcl[5]
+
+            
             
         else:
             for atricle in self.list_article:
@@ -180,9 +182,8 @@ class TableArticleDevis():
         self.canv_devis.coords("Total_TTC", 860, y+95)
         self.canv_devis.coords("remarq", 100, y+125)
         self.canv_devis.coords("text_remarq", 10, y+150)
-        self.canv_devis.coords("sing", 870, y+250)
-        self.canv_devis.coords("ajoute_sing", 950, y+250)
-        self.canv_devis.coords("bouton_annule",375, y+425)
-        self.canv_devis.coords("bouton_enregs", 500, y+425)
+        self.canv_devis.coords("sing", 870, y+150)
+        self.canv_devis.coords("ajoute_sing", 950, y+150)
+        
 
 
