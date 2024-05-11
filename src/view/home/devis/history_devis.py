@@ -5,6 +5,7 @@ from const import *
 from tools.event_entry import effacer_indicatif
 
 from view.home.devis.cree_devis import CreeDevis
+from view.home.devis.conver_facture import ConverDevis
 
 class Devis():
     def __init__(self, root, frame_button, BDD, id_utilisateur):
@@ -47,7 +48,7 @@ class Devis():
         
         for devis in requet_devis:
             nom_client = f"{ devis[1]} + {devis[2]}"
-            format_info = f"{'':<15}{(devis[0] + (len(devis[0])%8)*" ")[0:8] :<18}{(nom_client + (len(nom_client)%25)*" ")[0:25]:<26}{(devis[2] + (len(devis[2])%10)*" ")[0:10]:>5}"
+            format_info = f"{'':<15}{(devis[0] + (len(devis[0])%8)*" ")[0:8] :<18}{(nom_client + (len(nom_client)%25)*" ")[0:25]:<26}{(devis[3]):>5}"
             self.listbox.insert(tk.END, format_info)
 
 
@@ -76,12 +77,27 @@ class Devis():
             num_devis = format_box.split()[0]
             requet_devis = f"SELECT * FROM devis WHERE num = '{num_devis}' AND id_utilisateur = '{self.id_utilisateur}';"
             requet_devis = self.BDD.execute_requete(requet_devis)[0]
-            print(requet_devis)
             self.canvas.destroy()
             CreeDevis(self.root,self.frame_button,self.BDD, self.id_utilisateur,requet_devis) #defini dans  (cree_devis.py)
 
         else:
-            messagebox.showerror("Erreur", "Vous devez sélectionner une facture.")
+            messagebox.showerror("Erreur", "Vous devez sélectionner une devis.")
+
+
+    def convertir_devis(self):
+        indice_devis = self.listbox.curselection()
+        if indice_devis:
+            format_box =self.listbox.get(indice_devis)
+            num_devis = format_box.split()[0]
+            requet_devis = f"SELECT * FROM devis WHERE num = '{num_devis}' AND id_utilisateur = '{self.id_utilisateur}';"
+            requet_devis = self.BDD.execute_requete(requet_devis)[0]
+            print(requet_devis)
+            self.canvas.destroy()
+            ConverDevis(self.root,self.frame_button,self.BDD, self.id_utilisateur,requet_devis) #defini dans  (conver_facture.py)
+
+        else:
+            messagebox.showerror("Erreur", "Vous devez sélectionner une devis.")
+
 
 
 

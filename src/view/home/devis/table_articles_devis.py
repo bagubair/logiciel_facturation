@@ -138,10 +138,7 @@ class TableArticleDevis():
                 articles.append(artcl)
                 total_ht += artcl[4]
                 total_ttc += artcl[5]
-            
-            
-            
-            
+
         else:
             for atricle in self.list_article:
                 articles.append(atricle.get_info())
@@ -160,8 +157,6 @@ class TableArticleDevis():
                 
                 self.total_ttc += artcl[5]
 
-            
-            
         else:
             for atricle in self.list_article:
                 self.total_ht += atricle.get_info()[4]

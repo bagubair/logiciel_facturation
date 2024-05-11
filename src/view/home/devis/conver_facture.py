@@ -10,6 +10,12 @@ import datetime
 from const import *
 from tools.event_entry import effacer_indicatif, effacer_Text_indicatif
 
+from view.home.facture.infos_client import InfosClient
+from view.home.facture.infos_entrprise import InfosEntreprise
+from view.home.devis.table_convert import TableConvertArticle
+from view.home.facture.prix_info_pay import InfosBancaire
+from view.home.facture.singature import SignatureFrame
+
 
 class ConverDevis():
     def __init__(self, root,frame_button,BDD, id_utilisateur, infos_devis):
@@ -47,7 +53,47 @@ class ConverDevis():
 
 
     def cree_facture(self):
-        pass
+        self.info_facture()
+        self.info_entrprise = InfosEntreprise(self.canv_fact,self.BDD, self.id_utilisateur)
+
+        #on cherche des inofs de cleint apartir de son ref, defini dans encien facture 
+        num_client = self.infos_devis[6]
+        requet_cl = f"SELECT * FROM client WHERE num = '{num_client}' AND id_utilisateur = '{self.id_utilisateur}';"
+        requet_cl = self.BDD.execute_requete(requet_cl)[0]
+        self.info_client = InfosClient(self.canv_fact,requet_cl)
+
+        table = json.loads(self.infos_devis[2])
+        self.info_table_articles = TableConvertArticle(self.canv_fact,425, table )
+
+        remarqu = self.infos_devis[4]
+
+
+    def info_facture(self): 
+        facture_label = tk.Label(self.canv_fact, text="FACTURE",bg=COULEUR_LABEL,font=(POLICE, 20,"bold"))
+        self.canv_fact.create_window(500, 40, anchor="n", window=facture_label)
+        # Num facture
+        self.num_fact = int(self.BDD.execute_requete(f"SELECT COUNT(*) AS nombre_de_lignes FROM facture;")[0][0])
+        num_facture_label = tk.Label(self.canv_fact, text="Numbre facture : ",bg=COULEUR_LABEL)
+        self.canv_fact.create_window(797, 70, anchor="n", window=num_facture_label)
+        self.entry_num_fact = tk.Entry(self.canv_fact)
+        self.canv_fact.create_window(925, 70, anchor="n", window=self.entry_num_fact)
+        # Date facture
+        date_facture_label = tk.Label(self.canv_fact, text="Date facture : ",bg=COULEUR_LABEL)
+        self.canv_fact.create_window(805,100, anchor="n", window=date_facture_label)
+        self.entry_date_fact = tk.Entry(self.canv_fact)
+        self.canv_fact.create_window(925, 100, anchor="n", window=self.entry_date_fact)
+        #Ref client 
+        self.num_client = int(self.BDD.execute_requete(f"SELECT COUNT(*) AS nombre_de_lignes FROM client;")[0][0])
+        ref_cleint_label = tk.Label(self.canv_fact, text="Ref Client : ",bg=COULEUR_LABEL)
+        self.canv_fact.create_window(810,130, anchor="n", window=ref_cleint_label)
+        self.entry_ref_cleint = tk.Entry(self.canv_fact)
+        self.canv_fact.create_window(925, 130, anchor="n", window=self.entry_ref_cleint)
+
+        
+        self.entry_num_fact.insert(0, f"FAC000{self.num_fact +1 }")
+        self.entry_date_fact.insert(0,datetime.datetime.now().date()) #afficheer la date actule par defut
+        self.entry_ref_cleint.insert(0,f"CL000{self.num_client + 1}") 
+  
 
     def on_configure(self, event):
         if (self.canvas):

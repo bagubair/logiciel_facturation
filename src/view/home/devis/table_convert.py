@@ -9,22 +9,27 @@ from view.home.facture.article import Article
 
 
 
-class TableArticle():
-    def __init__(self,canvas,pos_vertical, encien_valeur_table=None, encien_val_pay=None):
+class TableConvertArticle():
+    def __init__(self,canvas,pos_vertical, table_devis):
 
         self.canv_fact = canvas
         self.y = pos_vertical
-        self.encien_valeur_table = encien_valeur_table
-        self.encien_val_pay = encien_val_pay
+        self.table_devis = table_devis #contein table des article + total htt + total ttc
 
-        self.total_ht = 0.0
-        self.total_ttc = 0.0
+        self.encien_valeur_table = self.table_devis[0]
+        self.total_ht = self.table_devis[1]
+        self.total_ttc = self.table_devis[2]
 
         self.info_table_articles()
         self.inite_infos_pay()
 
         self.entr_remise.bind("<FocusOut>", self.modif_net_payer)
         self.entr_remise.bind("<Return>", self.modif_net_payer)
+
+        self.entr_mont.bind("<FocusOut>", self.update_solde)
+        self.entr_mont.bind("<Return>", self.update_solde)
+
+        
 
 
     def info_table_articles(self):
@@ -50,16 +55,14 @@ class TableArticle():
         ligne_2 = self.canv_fact.create_line(15,415, 990, 415, fill="black")
         self.nb = 0 #pour conter numbre des article
 
-        if(self.encien_valeur_table): 
-            self.list_article = self.encien_valeur_table
-            for encien_art in self.list_article:
-                Article(self.canv_fact, self.y, self.nb,self, encien_art)
-                self.y += 100
-                self.nb += 1 #pour conter numbre des article
+        
+        self.list_article = self.encien_valeur_table
+        for encien_art in self.list_article:
+            Article(self.canv_fact, self.y, self.nb,self, encien_art)
+            self.y += 100
+            self.nb += 1 #pour conter numbre des article
 
-        else:
-            self.list_article = []
-            self.ajoute_article()
+        
 
         bouton_ajout = tk.Button(self.canv_fact, text="+",bg="black",fg="white", command=lambda: self.ajoute_article())
         self.canv_fact.create_window(20, self.y, anchor="nw", window=bouton_ajout,tags="ajoute")
@@ -67,9 +70,6 @@ class TableArticle():
         ligne_3 = self.canv_fact.create_line(15,self.y +40 , 990,self.y+40,tags="linge_3", fill="black")
 
         
-        
-        
-    
     def inite_infos_pay(self):
         # Total HT, TVA, Total TTC, etc.
         self.total_ht_label = tk.Label(self.canv_fact, bg=COULEUR_LABEL)
@@ -90,48 +90,50 @@ class TableArticle():
         self.canv_fact.create_window(860, (self.y +160) , anchor="n", window=self.net_a_payer_label,tags="Net")
 
 
-        etat_fact = tk.Label(self.canv_fact, text="Facture payée : ",bg=COULEUR_LABEL)
-        self.canv_fact.create_window(850, (self.y +185) , anchor="n", window=etat_fact,tags="etat_fact")
-        self.checketat_var = tk.IntVar()
-        check_etat = tk.Checkbutton(self.canv_fact, variable=self.checketat_var)
-        self.canv_fact.create_window(900, (self.y +185) , anchor="n", window=check_etat,tags="box_check")
+        montant_pay = tk.Label(self.canv_fact, text="Montant payée : ",bg=COULEUR_LABEL)
+        self.canv_fact.create_window(850, (self.y +185) , anchor="n", window=montant_pay,tags="mont_fact")
+        self.entr_mont = tk.Entry(self.canv_fact,width=7)
+        self.canv_fact.create_window(900, (self.y +185) , anchor="n", window=self.entr_mont,tags="entr_mont")
+
+        mont_pay = self.entr_mont.get() if est_nombre( self.entr_mont.get() ) else "0"
+        self.solde = tk.Label(self.canv_fact, text=f"  Solde Dû  :  { (self.total_ttc - float(mont_remise)) - float(mont_pay)  } €",bg=COULEUR_LABEL)
+        self.canv_fact.create_window(860, (self.y +210) , anchor="n", window=self.solde,tags="solde")
+
 
         mode_paiement_label = tk.Label(self.canv_fact, text="Mode de paiement : ",bg=COULEUR_LABEL)
-        self.canv_fact.create_window(865, (self.y +210) , anchor="n", window=mode_paiement_label,tags="Mode")
+        self.canv_fact.create_window(865, (self.y +230) , anchor="n", window=mode_paiement_label,tags="Mode")
 
         self.mode_paiement = tk.StringVar()
 
         # Créer les boutons de contrôle pour chaque option de mode de paiement
         carte_button = tk.Checkbutton(self.canv_fact, text="Carte", bg=COULEUR_LABEL, variable=self.mode_paiement, onvalue="Carte", offvalue="")
-        self.canv_fact.create_window(780, (self.y +230) , anchor="n", window=carte_button,tags="carte")
+        self.canv_fact.create_window(780, (self.y +245) , anchor="n", window=carte_button,tags="carte")
 
         cheque_button = tk.Checkbutton(self.canv_fact, text="Chèque", bg=COULEUR_LABEL, variable=self.mode_paiement, onvalue="Chèque", offvalue="")
-        self.canv_fact.create_window(850, (self.y +230) , anchor="n", window=cheque_button,tags="cheque")
+        self.canv_fact.create_window(850, (self.y +245) , anchor="n", window=cheque_button,tags="cheque")
 
         espece_button = tk.Checkbutton(self.canv_fact, text="Espèces", bg=COULEUR_LABEL, variable=self.mode_paiement, onvalue="Espèces", offvalue="")
-        self.canv_fact.create_window(920, (self.y +230) , anchor="n", window=espece_button,tags="espece")
+        self.canv_fact.create_window(920, (self.y +245) , anchor="n", window=espece_button,tags="espece")
 
 
         date_echange_label = tk.Label(self.canv_fact, text="Date d'échange :",bg=COULEUR_LABEL)
-        self.canv_fact.create_window(800, (self.y +255) , anchor="n", window=date_echange_label,tags="date")
+        self.canv_fact.create_window(800, (self.y +270) , anchor="n", window=date_echange_label,tags="date")
         self.ent_date_ech = tk.Entry(self.canv_fact,width=15)
         self.ent_date_ech.insert(0,datetime.datetime.now().date())
-        self.canv_fact.create_window(920, (self.y +255) , anchor="n", window=self.ent_date_ech,tags="ent_date")
+        self.canv_fact.create_window(920, (self.y +270) , anchor="n", window=self.ent_date_ech,tags="ent_date")
 
-        if (self.encien_val_pay):
-            self.total_ht_label.config(text=f"   Total HT :   {self.encien_val_pay[0] } € ")
-            self.total_ttc_label.config(text=f"   Total TTC :  {self.encien_val_pay[1] } €")
-            self.entr_remise.insert(0,self.encien_val_pay[2])
-            self.net_a_payer_label.config(text=f"  Net à payer  :  { self.encien_val_pay[1] - self.encien_val_pay[2]} €")
+        
+        self.total_ht_label.config(text=f"   Total HT :   {self.total_ht } € ")
+        self.total_ttc_label.config(text=f"   Total TTC :  {self.total_ttc } €")
 
+        self.entr_remise.config(fg="gray")
+        self.entr_remise.insert(0, "0")
+        self.entr_remise.bind("<FocusIn>", lambda event: effacer_indicatif(self.entr_remise, "0" ))
 
-        else:
-            self.total_ht_label.config(text=f"   Total HT :   {self.total_ht } € ")
-            self.total_ttc_label.config(text=f"   Total TTC :  {self.total_ttc } €")
+        self.entr_mont.config(fg="gray")
+        self.entr_mont.insert(0, "0")
+        self.entr_mont.bind("<FocusIn>", lambda event: effacer_indicatif(self.entr_remise, "0" ))
 
-            self.entr_remise.config(fg="gray")
-            self.entr_remise.insert(0, "0")
-            self.entr_remise.bind("<FocusIn>", lambda event: effacer_indicatif(self.entr_remise, "0" ))
 
 
     def ajoute_article(self):
@@ -174,50 +176,39 @@ class TableArticle():
         #self.canv_fact.delete(article_sup)
         #self.y -= 110
 
+    def modif_element(self, nb, new_info):
+        """ cette fonction pour modifier un element dans liste article """
+        self.list_article[nb] = new_info
+
+
 
     def get_info(self):
         articles = []
         total_ht = 0
         total_ttc = 0
-        if(self.encien_valeur_table):
-            articles.append(self.encien_valeur_table)
-            self.total_ht += self.encien_val_pay[0]
-            self.total_ttc += self.encien_val_pay[1]
-            #pour nouvelle class ajoute , on appel comme une class ,;;; on parcourir dans notre liste par indice, aprtier de premier nouvelle article
-            for idx_new_article in range(len(self.encien_valeur_table) , len(self.list_article)):
-                articles.append(self.list_article[idx_new_article].get_info())
-                self.total_ht += self.list_article[idx_new_article].get_info()[4]
-                self.total_ttc += self.list_article[idx_new_article].get_info()[5]
-            
-        else:
-            for atricle in self.list_article:
-                articles.append(atricle.get_info())
-                total_ht += atricle.get_info()[4]
-                total_ttc += atricle.get_info()[5]
+        
+        for artcl in self.list_article:
+            articles.append(artcl)
+            total_ht += artcl[4]
+            total_ttc += artcl[5]
+
 
         remis =float( self.entr_remise.get()) if (est_nombre(self.entr_remise.get()) ) else "0"
         net = total_ttc - remis 
-        etat = self.checketat_var.get()  #renvoi 1 si c'est payee et 0 sinon
+        mont_pay = float(self.entr_mont.get() ) if est_nombre( self.entr_mont.get() ) else "0"
+        solde = net - mont_pay
         mode = self.mode_paiement.get()
         date_echan = self.ent_date_ech.get()
 
-        return [articles, total_ht, total_ttc,remis,net, etat, mode, date_echan]
+        return [articles, total_ht, total_ttc,remis,net, solde, mode, date_echan]
 
     def calcule_total(self):
         self.total_ht = 0
         self.total_ttc = 0
-        if(self.encien_valeur_table):
-            self.total_ht += self.encien_val_pay[0]
-            self.total_ttc += self.encien_val_pay[1]
-            #pour nouvelle class ajoute , on appel comme une class ,;;; on parcourir dans notre liste par indice, aprtier de premier nouvelle article
-            for idx_new_article in range(len(self.encien_valeur_table)-1 , len(self.list_article)):
-                self.total_ht += self.list_article[idx_new_article].get_info()[4]
-                self.total_ttc += self.list_article[idx_new_article].get_info()[5]
-            
-        else:
-            for atricle in self.list_article:
-                self.total_ht += atricle.get_info()[4]
-                self.total_ttc += atricle.get_info()[5]
+        for artcl in self.list_article:
+                print(artcl)
+                self.total_ht += artcl[4]
+                self.total_ttc += artcl[5]
 
         self.total_ht_label.config(text=f"   Total HT :   {self.total_ht } € ")
         self.total_ttc_label.config(text=f"   Total TTC :  {self.total_ttc } €")
@@ -231,6 +222,13 @@ class TableArticle():
         
         self.net_a_payer_label.config(text=f"  Net à payer  :  { self.total_ttc - mont_remis} €")
 
+    def update_solde(self, event=None):
+        mont_remis = float(self.entr_remise.get()) if (est_nombre(self.entr_remise.get()) ) else "0"
+        mont_pay = float(self.entr_mont.get() ) if est_nombre( self.entr_mont.get() ) else "0"
+
+        self.solde.config(text=f"  Solde Dû  :  { (self.total_ttc - float(mont_remis)) - float(mont_pay)  } €")
+
+
 
 
     def update_places(self,y):
@@ -243,14 +241,15 @@ class TableArticle():
         self.canv_fact.coords("remise", 840, y+120)
         self.canv_fact.coords("entr_remise", 900, y +120)
         self.canv_fact.coords("Net", 860, y+145)
-        self.canv_fact.coords("etat_fact", 850, y+170)
-        self.canv_fact.coords("box_check", 900, y+170)
-        self.canv_fact.coords("Mode", 865, y+195)
-        self.canv_fact.coords("carte", 780, y +213)
-        self.canv_fact.coords("cheque", 850, y +213)
-        self.canv_fact.coords("espece", 920, y +213)
-        self.canv_fact.coords("date", 800, y+240)
-        self.canv_fact.coords("ent_date", 920, y+240)
+        self.canv_fact.coords("mont_fact", 850, y+170)
+        self.canv_fact.coords("entr_mont", 900, y+170)
+        self.canv_fact.coords("solde", 865, y+195)
+        self.canv_fact.coords("Mode", 865, y+220)
+        self.canv_fact.coords("carte", 780, y +238)
+        self.canv_fact.coords("cheque", 850, y +238)
+        self.canv_fact.coords("espece", 920, y +238)
+        self.canv_fact.coords("date", 800, y+265)
+        self.canv_fact.coords("ent_date", 920, y+265)
         
         self.canv_fact.coords("infos", 200, y+70)
         self.canv_fact.coords("banque", 100, y+95)
