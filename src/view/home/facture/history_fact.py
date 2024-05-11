@@ -79,10 +79,6 @@ class HistoryFacture:
         
 
 
-        
-        
-        
-
         self.touts_facture() #on ititialse le page pour tous facture
 
 

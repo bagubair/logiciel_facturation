@@ -58,22 +58,7 @@ class Facture:
         self.entry_ref_cleint.bind("<FocusOut>",lambda event: self.get_num_client())
         
 
-    def on_configure(self, event):
-        if (self.canvas):
-            # Recalculer les dimensions de la fenêtre
-            x = self.root.winfo_width()
-            y = self.root.winfo_height()
-
-            self.frame_button.config(width=x, height=(y // 11.42))
-            self.frame_button.place(x=0, y=0)
-
-            self.canvas.config(width=x, height=y)
-            self.canvas.place(x=0, y=(y //11.42))
-
-            self.frame_fact.config(width=1000, height=(y-80))
-            self.frame_fact.place(x=(x-1000)//2, y=10)
-            self.canv_fact.config(width=1000,height=(y-80))
-
+    
             
 
     
@@ -126,9 +111,6 @@ class Facture:
             pass
 
 
-
-
-
     def info_facture(self, infos_fact=None): # infos_fact : une liste[num facture, date , ref client]
         facture_label = tk.Label(self.canv_fact, text="FACTURE",bg=COULEUR_LABEL,font=(POLICE, 20,"bold"))
         self.canv_fact.create_window(500, 40, anchor="n", window=facture_label)
@@ -174,15 +156,10 @@ class Facture:
             self.text_remarq.insert(tk.END,"Ajouter des remarques")
             self.text_remarq.bind("<FocusIn>", lambda event: effacer_Text_indicatif(self.text_remarq, "Ajouter des remarques" ))
 
-
-
-
         sing = tk.Label(self.canv_fact, text="Singature ",bg=COULEUR_LABEL,font=(POLICE, 15,"bold"))
         self.canv_fact.create_window(870, (self.y +380) , anchor="n", window=sing,tags="sing")
         bouton_sing = tk.Button(self.canv_fact, text="+",bg="black",fg="white", command=lambda: self.ajoute_singature())
         self.canv_fact.create_window(950, self.y + 380, anchor="n", window=bouton_sing,tags="ajoute_sing")
-
-        
 
         bouton_annule = tk.Button(self.canv_fact, text="Annuler",height=2,bg=COULEUR_CANVAS,font=(POLICE, 13,"bold"), command=lambda: self.annule())
         self.canv_fact.create_window(425, self.y + 520, anchor="n", window=bouton_annule,tags="bouton_annule")
@@ -319,6 +296,18 @@ class Facture:
         self.root.event_generate("<<retour_history_fact>>")
 
 
+    def on_configure(self, event):
+        if (self.canvas):
+            # Recalculer les dimensions de la fenêtre
+            x = self.root.winfo_width()
+            y = self.root.winfo_height()
 
+            self.frame_button.config(width=x, height=(y // 11.42))
+            self.frame_button.place(x=0, y=0)
 
-    
+            self.canvas.config(width=x, height=y)
+            self.canvas.place(x=0, y=(y //11.42))
+
+            self.frame_fact.config(width=1000, height=(y-80))
+            self.frame_fact.place(x=(x-1000)//2, y=10)
+            self.canv_fact.config(width=1000,height=(y-80))
