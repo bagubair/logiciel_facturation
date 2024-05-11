@@ -1,6 +1,8 @@
 import tkinter as tk
+from tkinter import messagebox
 
 from const import *
+from tools.event_entry import effacer_indicatif
 
 from view.home.facture.cree_fact import Facture
 from view.home.facture.touts_facture import ToutesFacture
@@ -41,12 +43,15 @@ class HistoryFacture:
         self.lis_button_fact.append(self.fact_non_payee)
 
 
-        self.nouvel_fact = tk.Button(self.canvas, width=20, height=2,text="Nouvelle facture", command=lambda:self.nouvelle_facture() ,bg=COULEUR_PRINCIPALE,font=(POLICE, 9,"bold"))
-        self.canvas.create_window((x//1.0169), (y//22.85) , anchor="ne", window=self.nouvel_fact,tags="nouvl_fact")
+        self.nouvel_fact = tk.Button(self.canvas, width=20, height=2,text="Nouvelle facture", command=lambda:self.nouvelle_facture() ,bg=COULEUR_PRINCIPALE,font=(POLICE, 10,"bold"))
+        self.canvas.create_window(1150, (y//22.85) , anchor="ne", window=self.nouvel_fact,tags="nouvl_fact")
 
         self.recherhe_fact = tk.Entry(self.canvas,width=22,fg="gray")
-        self.canvas.create_window((x//1.2), (y//14.54) , anchor="ne", window=self.recherhe_fact,tags="rech_fact")
+        self.canvas.create_window(960, (y//14.54) , anchor="ne", window=self.recherhe_fact,tags="rech_fact")
         self.recherhe_fact.insert(0, "Recherche")
+
+        self.recherhe_fact.bind("<FocusIn>", lambda event: effacer_indicatif(self.recherhe_fact, "Recherche" ))
+
         
 
         fact = tk.Label(self.canvas, text="Facture",bg=COULEUR_PRINCIPALE, font=(POLICE,12,"bold"))
@@ -74,14 +79,9 @@ class HistoryFacture:
         
 
 
-        self.requet_tous_fact = f"SELECT facture.num, client.nom, client.prenom, facture.date_fac, facture.net_pay FROM client, facture WHERE client.num = facture.ref_client AND facture.id_utilisateur = {self.id_utilisateur}"
-        self.requet_tous_fact = self.BDD.execute_requete(self.requet_tous_fact)
-
-        self.requt_fact_non_pay = f"SELECT facture.num, client.nom, client.prenom, facture.date_fac, facture.net_pay FROM client, facture WHERE client.num = facture.ref_client AND facture.id_utilisateur = {self.id_utilisateur} AND facture.etat_fac = 0"
-        self.requt_fact_non_pay = self.BDD.execute_requete(self.requt_fact_non_pay)
-
-        self.requt_fact_pay = f"SELECT facture.num, client.nom, client.prenom, facture.date_fac, facture.net_pay FROM client, facture WHERE client.num = facture.ref_client AND facture.id_utilisateur = {self.id_utilisateur} AND facture.etat_fac = 1"
-        self.requt_fact_pay = self.BDD.execute_requete(self.requt_fact_pay)
+        
+        
+        
 
         self.touts_facture() #on ititialse le page pour tous facture
 
@@ -96,7 +96,9 @@ class HistoryFacture:
         self.lis_button_fact[0].config(bg=COULEUR_CANVAS)
         self.button_active = 0
 
-    
+        self.requet_tous_fact = f"SELECT facture.num, client.nom, client.prenom, facture.date_fac, facture.net_pay FROM client, facture WHERE client.num = facture.ref_client AND facture.id_utilisateur = {self.id_utilisateur}"
+        self.requet_tous_fact = self.BDD.execute_requete(self.requet_tous_fact)
+
 
         self.listbox.delete(0, tk.END)
         for fact in self.requet_tous_fact:
@@ -110,6 +112,9 @@ class HistoryFacture:
         self.lis_button_fact[self.button_active].config(bg=COULEUR_PRINCIPALE)
         self.lis_button_fact[1].config(bg=COULEUR_CANVAS)
         self.button_active = 1
+
+        self.requt_fact_pay = f"SELECT facture.num, client.nom, client.prenom, facture.date_fac, facture.net_pay FROM client, facture WHERE client.num = facture.ref_client AND facture.id_utilisateur = {self.id_utilisateur} AND facture.etat_fac = 1"
+        self.requt_fact_pay = self.BDD.execute_requete(self.requt_fact_pay)
         
         self.listbox.delete(0, tk.END)
         for fact in self.requt_fact_pay:
@@ -123,6 +128,9 @@ class HistoryFacture:
         self.lis_button_fact[2].config(bg=COULEUR_CANVAS)
         self.button_active = 2
         
+        self.requt_fact_non_pay = f"SELECT facture.num, client.nom, client.prenom, facture.date_fac, facture.net_pay FROM client, facture WHERE client.num = facture.ref_client AND facture.id_utilisateur = {self.id_utilisateur} AND facture.etat_fac = 0"
+        self.requt_fact_non_pay = self.BDD.execute_requete(self.requt_fact_non_pay)
+
         self.listbox.delete(0, tk.END)
         for fact in self.requt_fact_non_pay:
             nom_client = f"{fact[1]} {fact[2]}"
@@ -153,13 +161,7 @@ class HistoryFacture:
                     """
             resultat_recherche = self.BDD.execute_requete(requete_cherche)
 
-            self.listbox.delete(0, tk.END)
-            for fact in resultat_recherche:
-                nom_client = f"{fact[1]} {fact[2]}"
-
-                format_info = f"{'':<27}{fact[0]:<60}{nom_client:<53}{fact[3]:<60}{fact[4]:>20}"
-                self.listbox.insert(tk.END, format_info)
-
+            
         elif( self.button_active == 1):
             requete_cherche = f"""
                         SELECT facture.num, client.nom, client.prenom, facture.date_fac, facture.net_pay
@@ -175,13 +177,7 @@ class HistoryFacture:
                     """
             resultat_recherche = self.BDD.execute_requete(requete_cherche)
 
-            self.listbox.delete(0, tk.END)
-            for fact in resultat_recherche:
-                nom_client = f"{fact[1]} {fact[2]}"
-
-                format_info = f"{'':<27}{fact[0]:<60}{nom_client:<53}{fact[3]:<60}{fact[4]:>20}"
-                self.listbox.insert(tk.END, format_info)
-
+            
         else:
             requete_cherche = f"""
                         SELECT facture.num, client.nom, client.prenom, facture.date_fac, facture.net_pay
@@ -197,23 +193,63 @@ class HistoryFacture:
                     """
             resultat_recherche = self.BDD.execute_requete(requete_cherche)
 
-            self.listbox.delete(0, tk.END)
-            for fact in resultat_recherche:
-                nom_client = f"{fact[1]} {fact[2]}"
+        self.listbox.delete(0, tk.END)
+        for fact in resultat_recherche:
+            nom_client = f"{fact[1]} {fact[2]}"
 
-                format_info = f"{'':<27}{fact[0]:<60}{nom_client:<53}{fact[3]:<60}{fact[4]:>20}"
-                self.listbox.insert(tk.END, format_info)
+            format_info = f"{'':<27}{fact[0]:<60}{nom_client:<53}{fact[3]:<60}{fact[4]:>20}"
+            self.listbox.insert(tk.END, format_info)
 
 
     def lire_fact(self):
         pass
 
     def modf_fact(self):
-        pass
+        indice_fact = self.listbox.curselection()
+        if indice_fact:
+            format_box =self.listbox.get(indice_fact)
+            num_fact = format_box.split()[0]
+            requet_fact = f"SELECT * FROM facture WHERE num = '{num_fact}' AND id_utilisateur = '{self.id_utilisateur}';"
+            requet_fact = self.BDD.execute_requete(requet_fact)[0]
+            print(requet_fact)
+            self.canvas.destroy()
+            Facture(self.root,self.frame_button,self.BDD, self.id_utilisateur,requet_fact) #defini dans  (cree_fact.py)
+
+        else:
+            messagebox.showerror("Erreur", "Vous devez sélectionner une facture.") 
+        
+
+        
 
     def supprim_fact(self):
-        pass
+        indice_fact = self.listbox.curselection()
+        if indice_fact:
+            format_box =self.listbox.get(indice_fact)
+            num_fact = format_box.split()[0]
+            suprime_fact = f"DELETE FROM facture WHERE num = '{num_fact}' AND id_utilisateur = '{self.id_utilisateur}';"
+            self.BDD.execute_requete(suprime_fact)
 
+            if(self.button_active == 0):
+                list_fact = f"SELECT facture.num, client.nom, client.prenom, facture.date_fac, facture.net_pay FROM client, facture WHERE client.num = facture.ref_client AND facture.id_utilisateur = {self.id_utilisateur}"
+                list_fact = self.BDD.execute_requete(list_fact)
+
+            elif(self.button_active == 1):
+                list_fact =f"SELECT facture.num, client.nom, client.prenom, facture.date_fac, facture.net_pay FROM client, facture WHERE client.num = facture.ref_client AND facture.id_utilisateur = {self.id_utilisateur} AND facture.etat_fac = 1"
+                list_fact = self.BDD.execute_requete(list_fact)
+
+            else:
+                list_fact = f"SELECT facture.num, client.nom, client.prenom, facture.date_fac, facture.net_pay FROM client, facture WHERE client.num = facture.ref_client AND facture.id_utilisateur = {self.id_utilisateur} AND facture.etat_fac = 0"
+                list_fact = self.BDD.execute_requete(list_fact )
+
+            self.listbox.delete(0, tk.END)
+            for fact in list_fact:
+                nom_client = f"{fact[1]} {fact[2]}"
+
+                format_info = f"{'':<27}{fact[0]:<60}{nom_client:<53}{fact[3]:<60}{fact[4]:>20}"
+                self.listbox.insert(tk.END, format_info)
+        else:
+            messagebox.showerror("Erreur", "Vous devez sélectionner une facture.") 
+        
     
     
     def on_configure(self, event):
@@ -227,6 +263,3 @@ class HistoryFacture:
             self.canvas.config(width=long, height=haut)
             self.canvas.place(x=0, y=(haut // 11.42))
 
-            self.canvas.coords("nouvl_fact",(long//1.0169), (haut//22.85))
-            self.canvas.coords("rech_fact",(long//1.2), (haut//14.54))
-            

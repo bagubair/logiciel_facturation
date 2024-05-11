@@ -4,62 +4,18 @@ import datetime
 
 from const import *
 from tools.event_entry import effacer_indicatif
+from tools.est_nombre import est_nombre
 
 
-class InfosPaiment():
-    def __init__(self, canvas, pos_vertical,total_ht):
+class InfosBancaire():
+    def __init__(self, canvas, pos_vertical, encien_valeur=None):
         self.canv_fact = canvas
         self.y = pos_vertical
-        self.total_ht = total_ht
+        self.encien_valeur = encien_valeur
 
-        self.info_paiment()
+        self.info_bancair()
 
-
-    
-    def info_paiment(self):
-        
-        # Total HT, TVA, Total TTC, etc.
-        total_ht_label = tk.Label(self.canv_fact, text=f"   Total HT :   {self.total_ht } € ",bg=COULEUR_LABEL)
-        self.canv_fact.create_window(800, (self.y +70) , anchor="n", window=total_ht_label,tags="Total_HT")
-
-        tva_label = tk.Label(self.canv_fact, text=f"      TVA :   {(self.total_ht * 0.2) } € ",bg=COULEUR_LABEL)
-        self.canv_fact.create_window(800, (self.y +95) , anchor="n", window=tva_label,tags="TVA")
-
-        total_ttc_label = tk.Label(self.canv_fact, text=f"   Total TTC :  {(self.total_ht * 0.2) + self.total_ht } €",bg=COULEUR_LABEL)
-        self.canv_fact.create_window(800, (self.y +120) , anchor="n", window=total_ttc_label,tags="Total_TTC")
-
-        net_a_payer_label = tk.Label(self.canv_fact, text=f"  Net à payer : {(self.total_ht * 0.2) + self.total_ht } €",bg=COULEUR_LABEL)
-        self.canv_fact.create_window(800, (self.y +145) , anchor="n", window=net_a_payer_label,tags="Net")
-
-        etat_fact = tk.Label(self.canv_fact, text="Facture payée : ",bg=COULEUR_LABEL)
-        self.canv_fact.create_window(800, (self.y +170) , anchor="n", window=etat_fact,tags="etat_fact")
-        self.checketat_var = tk.IntVar()
-        check_etat = tk.Checkbutton(self.canv_fact, variable=self.checketat_var)
-        self.canv_fact.create_window(860, (self.y +170) , anchor="n", window=check_etat,tags="box_check")
-
-        mode_paiement_label = tk.Label(self.canv_fact, text="Mode de paiement : ",bg=COULEUR_LABEL)
-        self.canv_fact.create_window(840, (self.y +195) , anchor="n", window=mode_paiement_label,tags="Mode")
-
-        self.mode_paiement = tk.StringVar()
-
-        # Créer les boutons de contrôle pour chaque option de mode de paiement
-        carte_button = tk.Checkbutton(self.canv_fact, text="Carte", bg=COULEUR_LABEL, variable=self.mode_paiement, onvalue="Carte", offvalue="")
-        self.canv_fact.create_window(770, (self.y +213) , anchor="n", window=carte_button,tags="carte")
-
-        cheque_button = tk.Checkbutton(self.canv_fact, text="Chèque", bg=COULEUR_LABEL, variable=self.mode_paiement, onvalue="Chèque", offvalue="")
-        self.canv_fact.create_window(840, (self.y +213) , anchor="n", window=cheque_button,tags="cheque")
-
-        espece_button = tk.Checkbutton(self.canv_fact, text="Espèces", bg=COULEUR_LABEL, variable=self.mode_paiement, onvalue="Espèces", offvalue="")
-        self.canv_fact.create_window(910, (self.y +213) , anchor="n", window=espece_button,tags="espece")
-
-
-        date_echange_label = tk.Label(self.canv_fact, text="Date d'échange :",bg=COULEUR_LABEL)
-        self.canv_fact.create_window(780, (self.y +240) , anchor="n", window=date_echange_label,tags="date")
-        self.ent_date_ech = tk.Entry(self.canv_fact,width=15)
-        self.ent_date_ech.insert(0,datetime.datetime.now().date())
-        self.canv_fact.create_window(900, (self.y +240) , anchor="n", window=self.ent_date_ech,tags="ent_date")
-
-
+    def info_bancair(self):
 
         info_banc = tk.Label(self.canv_fact, text="Informations Bancaires ",bg=COULEUR_LABEL,font=(POLICE, 15,"bold"))
         self.canv_fact.create_window(200, (self.y +70) , anchor="n", window=info_banc,tags="infos")
@@ -84,20 +40,36 @@ class InfosPaiment():
         self.canv_fact.create_window(100, (self.y +170) , anchor="n", window=bic,tags="bic")
         self.ent_bic = tk.Entry(self.canv_fact,width=30)
         self.canv_fact.create_window(230, (self.y +170) , anchor="n", window=self.ent_bic,tags="ent_bic")
-   
+
+        if( self.encien_valeur):
+            self.ent_banque.insert(0,self.encien_valeur[0])  
+            self.ent_rib.insert(0,self.encien_valeur[1])
+            self.ent_iban.insert(0,self.encien_valeur[2])
+            self.ent_bic.insert(0, self.encien_valeur[3])
+
+        else:
+            self.ent_banque.config(fg="gray")
+            self.ent_rib.config(fg="gray")
+            self.ent_iban.config(fg="gray")
+            self.ent_bic.config(fg="gray")
+
+            self.ent_banque.insert(0,"Nom Banque")
+            self.ent_rib.insert(0,"RIB")
+            self.ent_iban.insert(0,"IBAN")
+            self.ent_bic.insert(0, "BIC")
+
+            self.ent_banque.bind("<FocusIn>", lambda event: effacer_indicatif(self.ent_banque, "Nom Banque" ))
+            self.ent_rib.bind("<FocusIn>", lambda event: effacer_indicatif(self.ent_rib, "RIB" ))
+            self.ent_iban.bind("<FocusIn>", lambda event: effacer_indicatif( self.ent_iban, "IBAN" ))
+            self.ent_bic.bind("<FocusIn>", lambda event: effacer_indicatif(self.ent_bic, "BIC" ))
+
+
         self.canv_fact.update_idletasks()  
         self.canv_fact.configure(scrollregion=self.canv_fact.bbox("all"))
 
+    
 
-    def get_info_pay(self):
-        net = (self.total_ht * 0.2) + self.total_ht
-        etat = self.checketat_var.get()  #renvoi 1 si c'est payee et 0 sinon
-        mode = self.mode_paiement.get()
-        date_echan = self.ent_date_ech.get()
-
-        return [net, etat, mode, date_echan]
-
-    def get_info_banqu(self):
+    def get_info(self):
         banq = self.ent_banque.get()
         rib = self.ent_rib.get()
         iban = self.ent_iban.get()
@@ -105,3 +77,4 @@ class InfosPaiment():
 
         return [banq, rib, iban, bic]
 
+    
