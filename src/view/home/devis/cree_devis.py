@@ -9,6 +9,7 @@ import datetime
 
 from const import *
 from tools.event_entry import effacer_indicatif, effacer_Text_indicatif
+from tools.convert_pdf import canvas_to_pdf
 
 from view.home.facture.infos_client import InfosClient
 from view.home.facture.infos_entrprise import InfosEntreprise
@@ -49,11 +50,15 @@ class CreeDevis():
        
         self.cree_devis()
 
-        bouton_annule = tk.Button(self.canvas, text="Annuler",height=1,bg=COULEUR_CANVAS,font=(POLICE, 11,"bold"), command=lambda: self.annule())
-        self.canvas.create_window(470, 863, anchor="n", window=bouton_annule,tags="bouton_annule")
-
+        bouton_retour = tk.Button(self.canvas, text="Retour",height=1,bg=COULEUR_PRINCIPALE,font=(POLICE, 11,"bold"), command=lambda: self.retour())
+        self.canvas.create_window(370, 863, anchor="n", window=bouton_retour,tags="bouton_retour")
+        self.deja_enregist = 0 #une variables pour savoir si l'utilisatuer bien enregistrer les modification ou pas , on utimse se variable dans affiche message notification
+        
         bouton_enregs = tk.Button(self.canvas, text="Enregistrer",height=1,bg=COULEUR_BOUTON,fg=COULEUR_TEXT_BOUTON,font=(POLICE, 11,"bold"), command=lambda: self.enregistrer())
-        self.canvas.create_window(590, 863, anchor="n", window=bouton_enregs,tags="bouton_enregs")
+        self.canvas.create_window(570, 863, anchor="n", window=bouton_enregs,tags="bouton_enregs")
+
+        bouton_pdf = tk.Button(self.canvas, text="Afficher en PDF",height=1,bg=COULEUR_PRINCIPALE,font=(POLICE, 11,"bold"), command=lambda: self.convert_pdf())
+        self.canvas.create_window(820, 863, anchor="n", window=bouton_pdf,tags="bouton_pdf")
  
 
 
@@ -179,7 +184,7 @@ class CreeDevis():
 
             self.BDD.execute_requete(requet_cl,valeurs)
         else:
-            pass #si deja existe 
+            pass #si deja existe
 
         #on chereche si les info d'entreprise deja exite dans BDD , sinon on vas l'ajouter , et relier avec l'utilisateur 
         requet_entrprise = f"SELECT * FROM entreprise WHERE id_utilisateur = '{self.id_utilisateur}';"
@@ -217,17 +222,25 @@ class CreeDevis():
             valeurs = (num_devis, date_devis, donnees_articles, montant, remarque,  self.id_utilisateur, ref_client)
             resultat = self.BDD.execute_requete(requet_devis, valeurs)
 
-        self.frame_devis.destroy()
-        self.canv_devis.destroy()
-        self.root.event_generate("<<retour_page_devis>>")
+        messagebox.showinfo("Information", "Le devis a été correctement enregistré.")
+        self.deja_enregist = 1
+
         
 
 
 
-    def annule(self):
+    def retour(self):
+        if self.deja_enregist != 1:
+            reponse = tk.messagebox.askquestion("Question", "Voulez-vous sauvegarder les modifications ?")
+            if reponse == 'yes':
+                self.enregistrer()
+
         self.frame_devis.destroy()
         self.canv_devis.destroy()
         self.root.event_generate("<<retour_page_devis>>")
+
+    def convert_pdf(self):
+        canvas_to_pdf(self.canv_devis,"test.pdf")
 
 
     def on_config(self, event):

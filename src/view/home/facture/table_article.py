@@ -135,8 +135,8 @@ class TableArticle():
 
 
     def ajoute_article(self):
-        Article(self.canv_fact, self.y, self.nb,self)
-        self.list_article.append(Article(self.canv_fact, self.y, self.nb,self))
+        new_article = Article(self.canv_devis, self.y, self.nb, self)
+        self.list_article.append(new_article)
         self.nb += 1
 
         """ on mise a jour la postion de button ajoute ,, et tous les position suivant a lui """

@@ -50,6 +50,17 @@ class ConverDevis():
 
         self.cree_facture()
 
+        bouton_retour = tk.Button(self.canvas, text="Retour",height=1,bg=COULEUR_PRINCIPALE,font=(POLICE, 11,"bold"), command=lambda: self.retour())
+        self.canvas.create_window(370, 863, anchor="n", window=bouton_retour,tags="bouton_retour")
+        
+        bouton_enregs = tk.Button(self.canvas, text="Enregistrer",height=1,bg=COULEUR_BOUTON,fg=COULEUR_TEXT_BOUTON,font=(POLICE, 11,"bold"), command=lambda: self.enregistrer())
+        self.canvas.create_window(570, 863, anchor="n", window=bouton_enregs,tags="bouton_enregs")
+
+        bouton_pdf = tk.Button(self.canvas, text="Afficher en PDF",height=1,bg=COULEUR_PRINCIPALE,font=(POLICE, 11,"bold"), command=lambda: self.convert_pdf())
+        self.canvas.create_window(820, 863, anchor="n", window=bouton_pdf,tags="bouton_pdf")
+ 
+ 
+
 
 
     def cree_facture(self):
@@ -65,7 +76,12 @@ class ConverDevis():
         table = json.loads(self.infos_devis[2])
         self.info_table_articles = TableConvertArticle(self.canv_fact,425, table )
 
+        
+        position_suiv_table = 540 + (len(table[0]) -1 ) *100
+        self.info_bancaires = InfosBancaire(self.canv_fact,position_suiv_table )
+
         remarqu = self.infos_devis[4]
+        self.infos_supplem(position_suiv_table,remarqu)
 
 
     def info_facture(self): 
@@ -83,7 +99,6 @@ class ConverDevis():
         self.entry_date_fact = tk.Entry(self.canv_fact)
         self.canv_fact.create_window(925, 100, anchor="n", window=self.entry_date_fact)
         #Ref client 
-        self.num_client = int(self.BDD.execute_requete(f"SELECT COUNT(*) AS nombre_de_lignes FROM client;")[0][0])
         ref_cleint_label = tk.Label(self.canv_fact, text="Ref Client : ",bg=COULEUR_LABEL)
         self.canv_fact.create_window(810,130, anchor="n", window=ref_cleint_label)
         self.entry_ref_cleint = tk.Entry(self.canv_fact)
@@ -92,8 +107,111 @@ class ConverDevis():
         
         self.entry_num_fact.insert(0, f"FAC000{self.num_fact +1 }")
         self.entry_date_fact.insert(0,datetime.datetime.now().date()) #afficheer la date actule par defut
-        self.entry_ref_cleint.insert(0,f"CL000{self.num_client + 1}") 
-  
+        self.entry_ref_cleint.insert(0,f"{self.infos_devis[6]}") 
+
+    def infos_supplem(self,y, remarqu=None):
+        self.y = y
+        lab_remarq = tk.Label(self.canv_fact, text="Remarque : ",bg=COULEUR_LABEL,font=(POLICE, 15,"bold"))
+        self.canv_fact.create_window(100, (self.y +300) , anchor="n", window=lab_remarq,tags="remarq")
+        self.text_remarq = tk.Text(self.canv_fact, bg="white", width=100,height=9)
+        self.canv_fact.create_window(10, (self.y +330) , anchor="nw", window=self.text_remarq,tags="text_remarq")
+
+        if(remarqu):
+            self.text_remarq.insert(tk.END,remarqu)
+        else:
+            self.text_remarq.config(fg="gray")
+            self.text_remarq.insert(tk.END,"Ajouter des remarques")
+            self.text_remarq.bind("<FocusIn>", lambda event: effacer_Text_indicatif(self.text_remarq, "Ajouter des remarques" ))
+
+        sing = tk.Label(self.canv_fact, text="Singature ",bg=COULEUR_LABEL,font=(POLICE, 15,"bold"))
+        self.canv_fact.create_window(870, (self.y +320) , anchor="n", window=sing,tags="sing")
+        bouton_sing = tk.Button(self.canv_fact, text="+",bg="black",fg="white", command=lambda: self.ajoute_singature())
+        self.canv_fact.create_window(950, self.y + 320, anchor="n", window=bouton_sing,tags="ajoute_sing")
+
+        self.canv_fact.update_idletasks()  
+        self.canv_fact.configure(scrollregion=self.canv_fact.bbox("all"))
+
+
+
+    def ajoute_singature(self):
+        x, y = self.canv_fact.coords("sing")
+        frame_sing = tk.Frame(self.canv_fact, width=250, height=130, bg=COULEUR_LABEL)
+        self.canv_fact.create_window(850, y + 30, anchor="n", window=frame_sing,tags="frame_sing")
+        SignatureFrame(self.canv_fact,frame_sing,self.id_utilisateur) 
+        # on done l'id pour singateur car on relier chaque singeur avec l'utilsature actuel ,, 
+        # il paux modifer comme il veux, par contre la fois qu'il singe pas on prend son dernier signature 
+
+
+    def enregistrer(self):
+        #tout d'abord on supprime devis de table devis ,,  et on va l'enregistre dans table facture 
+        num_devis = self.infos_devis[0]
+        encien_val = f"DELETE FROM devis  WHERE num = '{num_devis}' AND id_utilisateur = '{self.id_utilisateur}';"
+        self.BDD.execute_requete(encien_val)
+
+
+        #en suit : on s'assore des format d'infos avant enregestrer
+        num_fact = self.entry_num_fact.get() if (self.entry_num_fact.get()[0:6] =="FAC000") else f"FAC000{self.num_fact +1 }"
+        date_fact = self.entry_date_fact.get()
+        ref_client = self.entry_ref_cleint.get() if(self.entry_ref_cleint.get()[0:5] == "CL000") else f"CL000{self.num_client + 1}"
+
+        donnees_client = self.info_client.get_info()
+        donnees_entrpris = self.info_entrprise.get_info()
+        doonees_banque = json.dumps(self.info_bancaires.get_info())
+
+        donnees_articles = json.dumps(self.info_table_articles.get_info()[0]) #une liste qui contiens des liste ( chaque article represnter dans une liste)
+        donnees_payee = json.dumps(self.info_table_articles.get_info()[1:]) #[total_ht, total_ttc,remis,net, etat, mode, date_echan]
+
+        solde = self.info_table_articles.get_info()[4]
+
+        remarque = self.text_remarq.get("1.0", "end-1c")
+
+        #requet de checher d'abord si la client deaje dans BDD , sinon on va l'ajouter
+        requet_cl = f"SELECT num FROM client WHERE num = '{ref_client}' AND id_utilisateur = '{self.id_utilisateur}';"
+        requet_cl = self.BDD.execute_requete(requet_cl)
+        if (len(requet_cl) == 0 ):
+            #si le client n'est pas encore dans table client , on va l'ajouter
+            requet_cl = "INSERT INTO client (num, nom, prenom, adresse, tel_fax, mobil, id_utilisateur) \
+                    VALUES(%s, %s, %s, %s, %s, %s, %s )" 
+
+            valeurs = (ref_client, donnees_client[0], donnees_client[1], donnees_client[2], donnees_client[3], donnees_client[4] , self.id_utilisateur )
+
+            self.BDD.execute_requete(requet_cl,valeurs)
+        else:
+            pass #si deja existe 
+
+        #on chereche si les info d'entreprise deja exite dans BDD , sinon on vas l'ajouter , et relier avec l'utilisateur 
+        requet_entrprise = f"SELECT * FROM entreprise WHERE id_utilisateur = '{self.id_utilisateur}';"
+        requet_entrprise = self.BDD.execute_requete(requet_entrprise)
+        if (len(requet_entrprise) == 0 ):
+            #on ajoute les infos en reliant avec l'tilisateu , pour que la prochin fois , pas obliger de sissir tous infos
+            requet_entrprise = "INSERT INTO entreprise (nom_entreprise, adresse, mail, telephone, nb_ser, logo, id_utilisateur) \
+                    VALUES(%s, %s, %s, %s, %s, %s, %s )"
+            valeurs = (donnees_entrpris[0], donnees_entrpris[1], donnees_entrpris[2], donnees_entrpris[3], donnees_entrpris[4], donnees_entrpris[5], self.id_utilisateur)
+
+            requet_entrprise = self.BDD.execute_requete(requet_entrprise, valeurs)
+        else:
+            pass #si deja existe
+
+
+        #on ajoute dans table facture 
+
+        requet_fact = "INSERT INTO facture (num, date_fac, intervens, remarque, solde_du, info_pay, infos_banque, id_utilisateur, ref_client) \
+                VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+
+        valeurs = (num_fact, date_fact, donnees_articles, remarque, solde, donnees_payee, doonees_banque,  self.id_utilisateur, ref_client)
+        resultat = self.BDD.execute_requete(requet_fact, valeurs)
+
+        messagebox.showinfo("Information", "Le devis a été correctement converti en facture.")
+
+    
+    def retour(self):
+        reponse = tk.messagebox.askquestion("Question", "Voulez-vous sauvegarder les modifications ?")
+        if reponse == 'yes':
+            self.enregistrer()
+
+        self.frame_fact.destroy()
+        self.canv_fact.destroy()
+        self.root.event_generate("<<retour_page_devis>>")
 
     def on_configure(self, event):
         if (self.canvas):

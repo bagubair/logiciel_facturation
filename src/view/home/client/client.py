@@ -32,6 +32,10 @@ class Client():
         self.recherhe_client = tk.Entry(self.canvas,width=35,fg="gray")
         self.canvas.create_window(730, (y//26.66) , anchor="ne", window=self.recherhe_client,tags="rech_client")
         self.recherhe_client.insert(0, "Recherche")
+
+        self.recherhe_client.bind("<FocusIn>", lambda event: effacer_indicatif(self.recherhe_client,"Recherche"))
+        
+        self.recherhe_client.bind("<Return>",lambda event: self.cherche_client())
         
         
         num_client = tk.Label(self.canvas, text="Num",bg=COULEUR_PRINCIPALE, font=(POLICE,11,"bold"))
@@ -81,9 +85,7 @@ class Client():
         self.supprim = tk.Button(self.canvas, width=10, height=2,text="Supprimer", command=lambda:self.supprim_client() ,bg=COULEUR_PRINCIPALE,font=(POLICE, 11,"bold"))
         self.canvas.create_window(770,660 , anchor="n", window=self.supprim,tags="supr")
         
-        self.recherhe_client.bind("<FocusIn>", lambda event: effacer_indicatif(self.recherhe_client,"Recherche"))
         
-        self.recherhe_client.bind("<Return>",lambda event: self.cherche_client())
 
     def ajoute_client(self):
         self.canvas.delete("all")

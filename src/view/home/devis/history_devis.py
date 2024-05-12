@@ -30,6 +30,8 @@ class Devis():
         self.recherhe_devis = tk.Entry(self.canvas,width=35,fg="gray")
         self.canvas.create_window(730, (y//26.66) , anchor="ne", window=self.recherhe_devis,tags="rech_devis")
         self.recherhe_devis.insert(0, "Recherche")
+        self.recherhe_devis.bind("<FocusIn>", lambda event: effacer_indicatif(self.recherhe_devis,"Recherche"))
+        self.recherhe_devis.bind("<Return>",lambda event: self.recherhe_devis())
 
 
         devis = tk.Label(self.canvas, text="Num Devis",bg=COULEUR_PRINCIPALE, font=(POLICE,12,"bold"))
@@ -47,8 +49,8 @@ class Devis():
         requet_devis  = self.BDD.execute_requete( requet_devis )
         
         for devis in requet_devis:
-            nom_client = f"{ devis[1]} + {devis[2]}"
-            format_info = f"{'':<15}{(devis[0] + (len(devis[0])%8)*" ")[0:8] :<18}{(nom_client + (len(nom_client)%25)*" ")[0:25]:<26}{(devis[3]):>5}"
+            nom_client = f"{devis[1]}   {devis[2]}"
+            format_info = f"{'':<25}{ devis[0] :<38}{devis[3]:>15}"
             self.listbox.insert(tk.END, format_info)
 
 
@@ -65,7 +67,24 @@ class Devis():
         self.supprim = tk.Button(self.canvas, width=10, height=2,text="Supprimer", command=lambda:self.supprim_devis() ,bg=COULEUR_PRINCIPALE,font=(POLICE, 11,"bold"))
         self.canvas.create_window(770,660 , anchor="n", window=self.supprim,tags="supr")
 
-    
+    def recherhe_devis(self, event=None):
+        requete_cherche = f"""SELECT devis.num, client.nom, client.prenom, devis.montant
+                        FROM client
+                        INNER JOIN devis ON client.num = devis.ref_client
+                        WHERE 
+                        devis.id_utilisateur = '{self.id_utilisateur}' AND (
+                        devis.num = '{self.recherhe_fact.get()}' OR
+                        client.nom = '{self.recherhe_fact.get()}' OR
+                        client.prenom = '{self.recherhe_fact.get()}' )"""
+        
+        resultat_recherche = self.BDD.execute_requete(requete_cherche)
+        self.listbox.delete(0, tk.END)
+        for devis in resultat_recherche:
+            nom_client = f"{devis[1]}   {devis[2]}"
+            format_info = f"{'':<25}{ devis[0] :<38}{devis[3]:>15}"
+            self.listbox.insert(tk.END, format_info)
+
+
     def ajoute_devis(self):
         self.canvas.destroy()
         CreeDevis(self.root,self.frame_button,self.BDD, self.id_utilisateur) #defini dans  (cree_devis.py)
@@ -82,6 +101,26 @@ class Devis():
 
         else:
             messagebox.showerror("Erreur", "Vous devez sélectionner une devis.")
+
+    def supprim_devis(self):
+        indice_devis = self.listbox.curselection()
+        if indice_devis:
+            format_box =self.listbox.get(indice_devis)
+            num_devis = format_box.split()[0]
+            requet_sup_devis = f"DELETE FROM devis WHERE num = '{num_devis}' AND id_utilisateur = '{self.id_utilisateur}';"
+            self.BDD.execute_requete(requet_sup_devis)
+
+            requet_devis = f"SELECT devis.num, client.nom, client.prenom, devis.montant FROM client, devis WHERE client.num = devis.ref_client AND devis.id_utilisateur = {self.id_utilisateur}"
+            requet_devis  = self.BDD.execute_requete( requet_devis )
+            self.listbox.delete(0, tk.END)
+            for devis in requet_devis:
+                nom_client = f"{devis[1]}   {devis[2]}"
+                format_info = f"{'':<25}{ devis[0] :<38}{devis[3]:>15}"
+                self.listbox.insert(tk.END, format_info)
+        else:
+            messagebox.showerror("Erreur", "Vous devez sélectionner une devis.")
+
+
 
 
     def convertir_devis(self):

@@ -52,7 +52,7 @@ class TableArticleDevis():
         self.nb = 0 #pour conter numbre des article
 
         if(self.encien_valeur):
-            self.list_article = self.encien_valeur[0]
+            self.list_article = self.encien_valeur[0].copy()
             for encien_art in self.list_article:
                 Article(self.canv_devis, self.y, self.nb,self, encien_art)
                 self.y += 100
@@ -83,8 +83,8 @@ class TableArticleDevis():
             
     
     def ajoute_article(self):
-        Article(self.canv_devis, self.y, self.nb,self)
-        self.list_article.append(Article(self.canv_devis, self.y, self.nb,self))
+        new_article = Article(self.canv_devis, self.y, self.nb, self)
+        self.list_article.append(new_article)
         self.nb += 1
 
         """ on mise a jour la postion de button ajoute ,, et tous les position suivant a lui """
@@ -134,12 +134,14 @@ class TableArticleDevis():
         total_ht = 0
         total_ttc = 0
         if(self.encien_valeur):
+            print("eeeeee")
             for artcl in self.list_article:
                 articles.append(artcl)
                 total_ht += artcl[4]
                 total_ttc += artcl[5]
 
         else:
+            print("zzzzz", self.list_article)
             for atricle in self.list_article:
                 articles.append(atricle.get_info())
                 total_ht += atricle.get_info()[4]
@@ -150,17 +152,14 @@ class TableArticleDevis():
     def calcule_total(self):
         self.total_ht = 0
         self.total_ttc = 0
-        if(self.encien_valeur):
-            for artcl in self.list_article:
-                print(artcl)
+        
+        for artcl in self.list_article:
+            if not isinstance(artcl, list): #on fait ce test parceque les articles deja  existe sont representer de type list par contre nouvelle article sont de type objet Article
+                self.total_ht += artcl.get_info()[4]
+                self.total_ttc += artcl.get_info()[5]
+            else:
                 self.total_ht += artcl[4]
-                
                 self.total_ttc += artcl[5]
-
-        else:
-            for atricle in self.list_article:
-                self.total_ht += atricle.get_info()[4]
-                self.total_ttc += atricle.get_info()[5]
 
         self.total_ht_label.config(text=f"   Total HT :   {self.total_ht } € ")
         self.total_ttc_label.config(text=f"   Total TTC :  {self.total_ttc } €")

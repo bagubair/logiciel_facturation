@@ -239,7 +239,7 @@ class HistoryFacture:
 
             self.listbox.delete(0, tk.END)
             for fact in list_fact:
-                nom_client = f"{fact[1]} {fact[2]}"
+                nom_client = f"{fact[1]}   {fact[2]}"
 
                 format_info = f"{'':<27}{fact[0]:<60}{nom_client:<53}{fact[3]:<60}{fact[4]:>20}"
                 self.listbox.insert(tk.END, format_info)

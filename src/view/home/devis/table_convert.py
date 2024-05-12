@@ -93,7 +93,7 @@ class TableConvertArticle():
         montant_pay = tk.Label(self.canv_fact, text="Montant payée : ",bg=COULEUR_LABEL)
         self.canv_fact.create_window(850, (self.y +185) , anchor="n", window=montant_pay,tags="mont_fact")
         self.entr_mont = tk.Entry(self.canv_fact,width=7)
-        self.canv_fact.create_window(900, (self.y +185) , anchor="n", window=self.entr_mont,tags="entr_mont")
+        self.canv_fact.create_window(930, (self.y +185) , anchor="n", window=self.entr_mont,tags="entr_mont")
 
         mont_pay = self.entr_mont.get() if est_nombre( self.entr_mont.get() ) else "0"
         self.solde = tk.Label(self.canv_fact, text=f"  Solde Dû  :  { (self.total_ttc - float(mont_remise)) - float(mont_pay)  } €",bg=COULEUR_LABEL)
@@ -132,13 +132,17 @@ class TableConvertArticle():
 
         self.entr_mont.config(fg="gray")
         self.entr_mont.insert(0, "0")
-        self.entr_mont.bind("<FocusIn>", lambda event: effacer_indicatif(self.entr_remise, "0" ))
+        self.entr_mont.bind("<FocusIn>", lambda event: effacer_indicatif(self.entr_mont, "0" ))
+
+        self.canv_fact.update_idletasks()  
+        self.canv_fact.configure(scrollregion=self.canv_fact.bbox("all"))
+
 
 
 
     def ajoute_article(self):
-        Article(self.canv_fact, self.y, self.nb,self)
-        self.list_article.append(Article(self.canv_fact, self.y, self.nb,self))
+        new_article = Article(self.canv_devis, self.y, self.nb, self)
+        self.list_article.append(new_article)
         self.nb += 1
 
         """ on mise a jour la postion de button ajoute ,, et tous les position suivant a lui """
@@ -206,6 +210,10 @@ class TableConvertArticle():
         self.total_ht = 0
         self.total_ttc = 0
         for artcl in self.list_article:
+            if not isinstance(artcl, list): #on fait ce test parceque les articles deja  existe sont representer de type list par contre nouvelle article sont de type objet Article
+                self.total_ht += artcl.get_info()[4]
+                self.total_ttc += artcl.get_info()[5]
+            else:
                 print(artcl)
                 self.total_ht += artcl[4]
                 self.total_ttc += artcl[5]
@@ -221,6 +229,7 @@ class TableConvertArticle():
         mont_remis = float(self.entr_remise.get()) if (est_nombre(self.entr_remise.get()) ) else "0"
         
         self.net_a_payer_label.config(text=f"  Net à payer  :  { self.total_ttc - mont_remis} €")
+        self.update_solde()
 
     def update_solde(self, event=None):
         mont_remis = float(self.entr_remise.get()) if (est_nombre(self.entr_remise.get()) ) else "0"
@@ -242,7 +251,7 @@ class TableConvertArticle():
         self.canv_fact.coords("entr_remise", 900, y +120)
         self.canv_fact.coords("Net", 860, y+145)
         self.canv_fact.coords("mont_fact", 850, y+170)
-        self.canv_fact.coords("entr_mont", 900, y+170)
+        self.canv_fact.coords("entr_mont", 930, y+170)
         self.canv_fact.coords("solde", 865, y+195)
         self.canv_fact.coords("Mode", 865, y+220)
         self.canv_fact.coords("carte", 780, y +238)
@@ -260,11 +269,9 @@ class TableConvertArticle():
         self.canv_fact.coords("ent_iban", 230, y+145)
         self.canv_fact.coords("bic", 100, y+170)
         self.canv_fact.coords("ent_bic", 230, y+170)
-        self.canv_fact.coords("remarq", 100, y+250)
-        self.canv_fact.coords("text_remarq", 10, y+280)
-        self.canv_fact.coords("sing", 870, y+380)
-        self.canv_fact.coords("ajoute_sing", 950, y+380)
-        self.canv_fact.coords("bouton_annule",375, y+500)
-        self.canv_fact.coords("bouton_enregs", 500, y+500)
+        self.canv_fact.coords("remarq", 100, y+260)
+        self.canv_fact.coords("text_remarq", 10, y+290)
+        self.canv_fact.coords("sing", 870, y+290)
+        self.canv_fact.coords("ajoute_sing", 950, y+290)
 
 
