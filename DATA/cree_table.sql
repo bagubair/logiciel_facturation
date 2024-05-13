@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS facture(
     solde_du FLOAT,
     info_pay TEXT,  -- il eura la date d'echnge et mod de pay
     infos_banque TEXT,
+    signatur INT, -- valeur 1: bien signee et 0 non signee
     id_utilisateur INT REFERENCES utilisateur(ID) , -- ici referance a table utilisature ,, et prend la valeur de collon nom utilisateur , on relie chaque facture par l'artisant(entrprise )
     ref_client VARCHAR(15), -- ici referance au client , pren num client
     PRIMARY KEY(num, id_utilisateur),
@@ -49,6 +50,7 @@ CREATE TABLE IF NOT EXISTS devis(
     intervens TEXT, --ici tous les interventios de la facture ,, sra dans un lise , mais on va metre ici en type str 
     montant FLOAT,
     remarque TEXT,
+    signatur INT, -- valeur 1: bien signee et 0 non signee
     id_utilisateur INT REFERENCES utilisateur(ID) , -- ici referance a table utilisature ,, et prend la valeur de collon nom utilisateur , on relie chaque facture par l'artisant(entrprise )
     ref_client VARCHAR(15), -- ici referance au client , pren num client
     PRIMARY KEY(num, id_utilisateur),

@@ -41,7 +41,8 @@ class Parametre():
         GereEntrprise(self.root,self.canvas, self.frame_button, self.BDD, self.id_utilisateur)
 
     def retour_arrier(self):
-        pass
+        self.canvas.destroy()
+        self.root.event_generate("<<retour_history_fact>>")
 
     def on_configure(self, event):
         if (self.canvas):

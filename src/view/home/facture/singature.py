@@ -13,6 +13,7 @@ class SignatureFrame():
         self.frame = frame
         self.id_utilisateur = id_utilisateur
         self.image_sing = None
+        self.bien_singee = 0 #variable pour indique si la facture ou devis contien un signature 
 
         self.canvas = tk.Canvas(self.frame, width=250, height=130, bg="white", bd=2, relief=tk.SUNKEN)
         self.canvas.pack(fill=tk.BOTH, expand=True)
@@ -55,14 +56,8 @@ class SignatureFrame():
             self.canv_fact.delete("frame_sing")
             x, y = self.canv_fact.coords("sing") #on cherche la possition de singateur pour metter la photo 
             self.frame = self.canv_fact.create_image( x+110 , y+40, anchor='ne', image=self.image_sing, tags="imag_sing")
+            self.bien_singee = 1
             
         
-# Exemple d'utilisation
-if __name__ == "__main__":
-    root = tk.Tk()
-    root.title("Capture de signature")
-
-    signature_frame = SignatureFrame(root)
-    signature_frame.pack(fill=tk.BOTH, expand=True)
-
-    root.mainloop()
+    def get_bien_singe(self):
+        return self.bien_singee

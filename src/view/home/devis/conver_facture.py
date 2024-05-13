@@ -24,6 +24,9 @@ class ConverDevis():
         self.BDD = BDD
         self.id_utilisateur = id_utilisateur
         self.infos_devis = infos_devis
+
+        self.deja_enregist = 0 #on a besoin pour savoir si la facture deja enregistrer ou pas 
+        self.signature = 0
         
         self.root.after(10, self.initialisation)
         self.root.bind("<Configure>", self.on_configure)
@@ -68,7 +71,7 @@ class ConverDevis():
         self.info_entrprise = InfosEntreprise(self.canv_fact,self.BDD, self.id_utilisateur)
 
         #on cherche des inofs de cleint apartir de son ref, defini dans encien facture 
-        num_client = self.infos_devis[6]
+        num_client = self.infos_devis[7]
         requet_cl = f"SELECT * FROM client WHERE num = '{num_client}' AND id_utilisateur = '{self.id_utilisateur}';"
         requet_cl = self.BDD.execute_requete(requet_cl)[0]
         self.info_client = InfosClient(self.canv_fact,requet_cl)
@@ -107,7 +110,7 @@ class ConverDevis():
         
         self.entry_num_fact.insert(0, f"FAC000{self.num_fact +1 }")
         self.entry_date_fact.insert(0,datetime.datetime.now().date()) #afficheer la date actule par defut
-        self.entry_ref_cleint.insert(0,f"{self.infos_devis[6]}") 
+        self.entry_ref_cleint.insert(0,f"{self.infos_devis[7]}") 
 
     def infos_supplem(self,y, remarqu=None):
         self.y = y
@@ -137,7 +140,8 @@ class ConverDevis():
         x, y = self.canv_fact.coords("sing")
         frame_sing = tk.Frame(self.canv_fact, width=250, height=130, bg=COULEUR_LABEL)
         self.canv_fact.create_window(850, y + 30, anchor="n", window=frame_sing,tags="frame_sing")
-        SignatureFrame(self.canv_fact,frame_sing,self.id_utilisateur) 
+        sign = SignatureFrame(self.canv_fact,frame_sing,self.id_utilisateur) 
+        self.signature = sign.get_bien_singe()
         # on done l'id pour singateur car on relier chaque singeur avec l'utilsature actuel ,, 
         # il paux modifer comme il veux, par contre la fois qu'il singe pas on prend son dernier signature 
 
@@ -152,6 +156,7 @@ class ConverDevis():
         #en suit : on s'assore des format d'infos avant enregestrer
         num_fact = self.entry_num_fact.get() if (self.entry_num_fact.get()[0:6] =="FAC000") else f"FAC000{self.num_fact +1 }"
         date_fact = self.entry_date_fact.get()
+        self.num_client = int(self.BDD.execute_requete(f"SELECT COUNT(*) AS nombre_de_lignes FROM client;")[0][0])
         ref_client = self.entry_ref_cleint.get() if(self.entry_ref_cleint.get()[0:5] == "CL000") else f"CL000{self.num_client + 1}"
 
         donnees_client = self.info_client.get_info()
@@ -161,7 +166,7 @@ class ConverDevis():
         donnees_articles = json.dumps(self.info_table_articles.get_info()[0]) #une liste qui contiens des liste ( chaque article represnter dans une liste)
         donnees_payee = json.dumps(self.info_table_articles.get_info()[1:]) #[total_ht, total_ttc,remis,net, etat, mode, date_echan]
 
-        solde = self.info_table_articles.get_info()[4]
+        solde = self.info_table_articles.get_info()[5]
 
         remarque = self.text_remarq.get("1.0", "end-1c")
 
@@ -195,19 +200,23 @@ class ConverDevis():
 
         #on ajoute dans table facture 
 
-        requet_fact = "INSERT INTO facture (num, date_fac, intervens, remarque, solde_du, info_pay, infos_banque, id_utilisateur, ref_client) \
-                VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        requet_fact = "INSERT INTO facture (num, date_fac, intervens, remarque, solde_du , info_pay, infos_banque, signatur, id_utilisateur, ref_client) \
+                VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
-        valeurs = (num_fact, date_fact, donnees_articles, remarque, solde, donnees_payee, doonees_banque,  self.id_utilisateur, ref_client)
+        valeurs = (num_fact, date_fact, donnees_articles, remarque, solde, donnees_payee, doonees_banque, self.signature, self.id_utilisateur, ref_client)
         resultat = self.BDD.execute_requete(requet_fact, valeurs)
 
+
         messagebox.showinfo("Information", "Le devis a été correctement converti en facture.")
+        self.deja_enregist = 1
 
     
     def retour(self):
-        reponse = tk.messagebox.askquestion("Question", "Voulez-vous sauvegarder les modifications ?")
-        if reponse == 'yes':
-            self.enregistrer()
+        if self.deja_enregist != 1:
+
+            reponse = tk.messagebox.askquestion("Question", "Voulez-vous sauvegarder les modifications ?")
+            if reponse == 'yes':
+                self.enregistrer()
 
         self.frame_fact.destroy()
         self.canv_fact.destroy()

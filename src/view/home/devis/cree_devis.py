@@ -9,7 +9,7 @@ import datetime
 
 from const import *
 from tools.event_entry import effacer_indicatif, effacer_Text_indicatif
-from tools.convert_pdf import canvas_to_pdf
+from tools.convert_pdf import convert_pdf
 
 from view.home.facture.infos_client import InfosClient
 from view.home.facture.infos_entrprise import InfosEntreprise
@@ -25,8 +25,12 @@ class CreeDevis():
         self.id_utilisateur = id_utilisateur
         self.encien_devis = encien_devis #dans cas juste modifier une devis 
         
+        self.signature = 0
+        
         self.root.after(10, self.initialisation)
         self.root.bind("<Configure>", self.on_config)
+
+        
 
     def initialisation(self):
 
@@ -59,6 +63,13 @@ class CreeDevis():
 
         bouton_pdf = tk.Button(self.canvas, text="Afficher en PDF",height=1,bg=COULEUR_PRINCIPALE,font=(POLICE, 11,"bold"), command=lambda: self.convert_pdf())
         self.canvas.create_window(820, 863, anchor="n", window=bouton_pdf,tags="bouton_pdf")
+
+        #on on prend l'event soit par taper Entre ou FoucusOut pour sorris
+        self.entry_num_devis.bind("<Return>",lambda event: self.get_num_devis()) #si l'utilisature change le numero par defut pour facture
+        self.entry_num_devis.bind("<FocusOut>",lambda event: self.get_num_devis())
+        self.entry_ref_cleint.bind("<Return>",lambda event: self.get_num_client())#si l'utilisature utilse un client deja dans basse donne ,on va dircte importer ces inofs ou dans cas change le numero par defut pour client
+        self.entry_ref_cleint.bind("<FocusOut>",lambda event: self.get_num_client())
+        
  
 
 
@@ -82,12 +93,12 @@ class CreeDevis():
         self.infos_supplem(400)
 
     def modifier_devis(self):
-        num_encien_devis = [self.encien_devis[0], self.encien_devis[1], self.encien_devis[6] ] # on donne la liste de [num , date , ref_client]
+        num_encien_devis = [self.encien_devis[0], self.encien_devis[1], self.encien_devis[7] ] # on donne la liste de [num , date , ref_client]
         self.info_devis(num_encien_devis)
         self.info_entrprise = InfosEntreprise(self.canv_devis,self.BDD, self.id_utilisateur)
 
         #on cherche des inofs de cleint apartir de son ref, defini dans encien devis
-        requet_cl = f"SELECT * FROM client WHERE num = '{self.encien_devis[6]}' AND id_utilisateur = '{self.id_utilisateur}';"
+        requet_cl = f"SELECT * FROM client WHERE num = '{self.encien_devis[7]}' AND id_utilisateur = '{self.id_utilisateur}';"
         requet_cl = self.BDD.execute_requete(requet_cl)[0]
         self.info_client = InfosClient(self.canv_devis, requet_cl)
 
@@ -154,7 +165,8 @@ class CreeDevis():
         x, y = self.canv_devis.coords("sing")
         frame_sing = tk.Frame(self.canv_devis, width=250, height=130, bg=COULEUR_LABEL)
         self.canv_devis.create_window(850, y + 30, anchor="n", window=frame_sing,tags="frame_sing")
-        SignatureFrame(self.canv_devis,frame_sing,self.id_utilisateur) 
+        sign = SignatureFrame(self.canv_devis,frame_sing,self.id_utilisateur) 
+        self.signature = sign.get_bien_singe()
         # on done l'id pour singateur car on relier chaque singeur avec l'utilsature actuel ,, 
         # il paux modifer comme il veux, par contre la fois qu'il singe pas on prend son dernier signature 
 
@@ -204,10 +216,10 @@ class CreeDevis():
         requet_devis = self.BDD.execute_requete(requet_devis)
         if ( len(requet_devis) == 0 ):
             # si elle n'existe pas ou on la cree
-            requet_devis = "INSERT INTO devis (num, date_devis, intervens, montant, remarque, id_utilisateur, ref_client) \
-                VALUES(%s, %s, %s, %s, %s, %s,  %s)"
+            requet_devis = "INSERT INTO devis (num, date_devis, intervens, montant, remarque, signatur, id_utilisateur, ref_client) \
+                VALUES(%s, %s, %s, %s, %s, %s, %s, %s)"
 
-            valeurs = (num_devis, date_devis, donnees_articles, montant, remarque,  self.id_utilisateur, ref_client)
+            valeurs = (num_devis, date_devis, donnees_articles, montant, remarque, self.signature , self.id_utilisateur, ref_client)
             resultat = self.BDD.execute_requete(requet_devis, valeurs)
 
         else:
@@ -216,18 +228,16 @@ class CreeDevis():
             sup_encien = self.BDD.execute_requete(encien_val)
 
             #on ajoute la nouvelle 
-            requet_devis = "INSERT INTO devis (num, date_devis, intervens, montant, remarque, id_utilisateur, ref_client) \
-                VALUES(%s, %s, %s, %s, %s, %s,  %s)"
+            requet_devis = "INSERT INTO devis (num, date_devis, intervens, montant, remarque, signatur, id_utilisateur, ref_client) \
+                VALUES(%s, %s, %s, %s, %s, %s, %s, %s)"
 
-            valeurs = (num_devis, date_devis, donnees_articles, montant, remarque,  self.id_utilisateur, ref_client)
+            valeurs = (num_devis, date_devis, donnees_articles, montant, remarque, self.signature , self.id_utilisateur, ref_client)
             resultat = self.BDD.execute_requete(requet_devis, valeurs)
 
         messagebox.showinfo("Information", "Le devis a été correctement enregistré.")
         self.deja_enregist = 1
 
         
-
-
 
     def retour(self):
         if self.deja_enregist != 1:
@@ -240,8 +250,56 @@ class CreeDevis():
         self.root.event_generate("<<retour_page_devis>>")
 
     def convert_pdf(self):
-        canvas_to_pdf(self.canv_devis,"test.pdf")
+        num_devis = self.entry_num_devis.get() if (self.entry_num_devis.get()[0:6] =="DEV000") else f"DEV000{self.num_devis +1 }"
+        date_devis = self.entry_date_devis.get()
+        ref_client = self.entry_ref_cleint.get() if(self.entry_ref_cleint.get()[0:5] == "CL000") else f"CL000{self.num_client + 1}"
+        infos_devis = [num_devis, date_devis, ref_client]
 
+        donnees_client = self.info_client.get_info()
+        donnees_entrpris = self.info_entrprise.get_info()
+        
+        donnees_articles = self.infos_articles.get_info()[0] #une liste qui contiens des liste ( chaque article represnter dans une liste) + total htt et total ttc
+
+        info_pay = self.infos_articles.get_info()[1:]
+        remarque = self.text_remarq.get("1.0", "end-1c")
+        info_supplem =[info_pay, remarque, 0]
+
+        convert_pdf(self.id_utilisateur, infos_devis, donnees_entrpris, donnees_client, donnees_articles, info_supplem, "devis")
+
+    def get_num_devis(self,event=None):
+        if(self.entry_num_devis.get() != f"DEV000{self.num_devis +1 }"): 
+            #on cherche la facture par son num , si il existe deja ( pour juste modifier l'infos ) sinon on cree une nouvelle
+            #aussii on test la valeur entrer pour num facture , il faut que le num comence par FAC000.....
+            if(self.entry_num_devis.get()[0:6] =="DEV000"):
+                requet_devis = f"SELECT * FROM devis WHERE num = '{self.entry_num_devis.get()}' AND id_utilisateur = '{self.id_utilisateur}';"
+                requet_devis = self.BDD.execute_requete(requet_devis)
+                if ( len(requet_devis) != 0 ):
+                    self.encien_devis = requet_devis[0]
+                    self.canv_devis.delete("all")
+                    self.cree_devis()
+            else:
+                messagebox.showerror("Erreur", "Le numéro de devis est invalide. Il doit commencer par DEV000.")
+
+    def get_num_client(self,event=None):
+        if(self.entry_ref_cleint.get() != f"CL000{self.num_client + 1}" ) :
+            #on cherche si le ref de cleitn deja existe pour qu'on remplir direct les infos de cleint ;
+            #en plus on test si le reference valide (commenc par CL000)
+            if (self.entry_ref_cleint.get()[0:5] == "CL000"):
+                #requet de checher d'abord si la client deaje dans BDD , sinon on va l'ajouter
+                requet_cl = f"SELECT * FROM client WHERE num = '{self.entry_ref_cleint.get()}' AND id_utilisateur = '{self.id_utilisateur}';"
+                requet_cl = self.BDD.execute_requete(requet_cl)
+                if (len(requet_cl) != 0 ):
+                    self.tous_infos_client = requet_cl[0]
+                    self.remplir_client()
+
+            else:
+                messagebox.showerror("Erreur", "Le numéro de client est invalide. Il doit commencer par CL000.")
+
+    def remplir_client(self):
+        if (self.tous_infos_client):
+            self.info_client = InfosClient(self.canv_devis, self.tous_infos_client)
+        else:
+            pass
 
     def on_config(self, event):
         if (self.canvas):

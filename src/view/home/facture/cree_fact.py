@@ -24,6 +24,9 @@ class Facture:
         self.BDD = BDD
         self.id_utilisateur = id_utilisateur
         self.encien_facture = encien_facture #dans cas juste modifier une facture 
+
+        self.deja_enregist = 0 #on a besoin pour savoir si la facture deja enregistrer ou pas 
+        self.signature = 0
         
         self.root.after(10, self.initialisation)
         self.root.bind("<Configure>", self.on_configure)
@@ -37,12 +40,12 @@ class Facture:
         self.canvas = tk.Canvas(self.root, width=self.x, height=self.y,bg=COULEUR_PRINCIPALE)
         self.canvas.place(x=0, y=(self.y //11.42))
 
-        self.frame_fact = tk.Frame(self.canvas, width=(self.x//1.2), height=(self.y//1.151), bg=COULEUR_LABEL)
+        self.frame_fact = tk.Frame(self.canvas, width=(self.x//1.2), height=(self.y//1.176), bg=COULEUR_LABEL)
         self.frame_fact.grid_propagate(False)  # Empêcher le frame de redimensionner ses cellules
         self.frame_fact.place(x=100, y=0)
 
         # Création du canevas avec la barre de défilement
-        self.canv_fact = tk.Canvas(self.frame_fact,width=(self.x//1.2), height=(self.y//1.151), yscrollincrement=8, bg=COULEUR_LABEL)
+        self.canv_fact = tk.Canvas(self.frame_fact,width=(self.x//1.2), height=(self.y//1.176), yscrollincrement=8, bg=COULEUR_LABEL)
         self.canv_fact.grid_propagate(False)
         self.scrol_fact = tk.Scrollbar(self.frame_fact, command=self.canv_fact.yview, orient="vertical", bg=COULEUR_PRINCIPALE)
         self.scrol_fact.pack(side="right", fill="y")
@@ -51,6 +54,18 @@ class Facture:
        
 
         self.cree_facture()
+
+
+        bouton_retour = tk.Button(self.canvas, text="Retour",height=1,bg=COULEUR_PRINCIPALE,font=(POLICE, 11,"bold"), command=lambda: self.retour())
+        self.canvas.create_window(370, 863, anchor="n", window=bouton_retour,tags="bouton_retour")
+        
+        bouton_enregs = tk.Button(self.canvas, text="Enregistrer",height=1,bg=COULEUR_BOUTON,fg=COULEUR_TEXT_BOUTON,font=(POLICE, 11,"bold"), command=lambda: self.enregistrer())
+        self.canvas.create_window(570, 863, anchor="n", window=bouton_enregs,tags="bouton_enregs")
+
+        bouton_pdf = tk.Button(self.canvas, text="Afficher en PDF",height=1,bg=COULEUR_PRINCIPALE,font=(POLICE, 11,"bold"), command=lambda: self.convert_pdf())
+        self.canvas.create_window(820, 863, anchor="n", window=bouton_pdf,tags="bouton_pdf")
+ 
+ 
         #on on prend l'event soit par taper Entre ou FoucusOut pour sorris
         self.entry_num_fact.bind("<Return>",lambda event: self.get_num_facture()) #si l'utilisature change le numero par defut pour facture
         self.entry_num_fact.bind("<FocusOut>",lambda event: self.get_num_facture())
@@ -83,24 +98,24 @@ class Facture:
         self.infos_supplem(540)
 
     def modifier_facture(self):
-        list_infos_fact = [self.encien_facture[0], self.encien_facture[1] , self.encien_facture[10]]# [num_fact, date , ref_client ]
+        list_infos_fact = [self.encien_facture[0], self.encien_facture[1] , self.encien_facture[9]]# [num_fact, date , ref_client ]
         self.info_facture(list_infos_fact)
 
         #on cherche des inofs de cleint apartir de son ref, defini dans encien facture 
-        requet_cl = f"SELECT * FROM client WHERE num = '{self.encien_facture[10]}' AND id_utilisateur = '{self.id_utilisateur}';"
+        requet_cl = f"SELECT * FROM client WHERE num = '{self.encien_facture[9]}' AND id_utilisateur = '{self.id_utilisateur}';"
         requet_cl = self.BDD.execute_requete(requet_cl)[0]
         self.info_client = InfosClient(self.canv_fact,requet_cl)
 
         self.info_entrprise = InfosEntreprise(self.canv_fact,self.BDD, self.id_utilisateur)
         
         table = json.loads(self.encien_facture[2]) #parce que les donne ont entre dans table basse de mode json.dump , donc on doite desactive 
-        info_pay = json.loads(self.encien_facture[6])
+        info_pay = json.loads(self.encien_facture[5])
         self.info_table_articles = TableArticle(self.canv_fact,425, table ,info_pay )  
 
         
         position_suiv_tabla = ( 540 + ((len(table)-1) * 100))
-        info = json.loads(self.encien_facture[7])
-        self.info_bancaires = InfosBancaire(self.canv_fact,position_suiv_tabla , info )
+        info_banc = json.loads(self.encien_facture[6])
+        self.info_bancaires = InfosBancaire(self.canv_fact,position_suiv_tabla , info_banc )
 
         self.infos_supplem(position_suiv_tabla,self.encien_facture[3])
 
@@ -145,9 +160,9 @@ class Facture:
     def infos_supplem(self,y, remarqu=None):
         self.y = y
         lab_remarq = tk.Label(self.canv_fact, text="Remarque : ",bg=COULEUR_LABEL,font=(POLICE, 15,"bold"))
-        self.canv_fact.create_window(100, (self.y +250) , anchor="n", window=lab_remarq,tags="remarq")
-        self.text_remarq = tk.Text(self.canv_fact, bg="white", width=120,height=4)
-        self.canv_fact.create_window(10, (self.y +280) , anchor="nw", window=self.text_remarq,tags="text_remarq")
+        self.canv_fact.create_window(100, (self.y +300) , anchor="n", window=lab_remarq,tags="remarq")
+        self.text_remarq = tk.Text(self.canv_fact, bg="white", width=100,height=9)
+        self.canv_fact.create_window(10, (self.y +330) , anchor="nw", window=self.text_remarq,tags="text_remarq")
 
         if(remarqu):
             self.text_remarq.insert(tk.END,remarqu)
@@ -157,21 +172,22 @@ class Facture:
             self.text_remarq.bind("<FocusIn>", lambda event: effacer_Text_indicatif(self.text_remarq, "Ajouter des remarques" ))
 
         sing = tk.Label(self.canv_fact, text="Singature ",bg=COULEUR_LABEL,font=(POLICE, 15,"bold"))
-        self.canv_fact.create_window(870, (self.y +380) , anchor="n", window=sing,tags="sing")
+        self.canv_fact.create_window(870, (self.y +320) , anchor="n", window=sing,tags="sing")
         bouton_sing = tk.Button(self.canv_fact, text="+",bg="black",fg="white", command=lambda: self.ajoute_singature())
-        self.canv_fact.create_window(950, self.y + 380, anchor="n", window=bouton_sing,tags="ajoute_sing")
+        self.canv_fact.create_window(950, self.y + 320, anchor="n", window=bouton_sing,tags="ajoute_sing")
 
-        bouton_annule = tk.Button(self.canv_fact, text="Annuler",height=2,bg=COULEUR_CANVAS,font=(POLICE, 13,"bold"), command=lambda: self.annule())
-        self.canv_fact.create_window(425, self.y + 520, anchor="n", window=bouton_annule,tags="bouton_annule")
+        self.canv_fact.update_idletasks()  
+        self.canv_fact.configure(scrollregion=self.canv_fact.bbox("all"))
 
-        bouton_enregs = tk.Button(self.canv_fact, text="Enregistrer",height=2,bg=COULEUR_BOUTON,fg=COULEUR_TEXT_BOUTON,font=(POLICE, 13,"bold"), command=lambda: self.enregistrer())
-        self.canv_fact.create_window(550, self.y + 520, anchor="n", window=bouton_enregs,tags="bouton_enregs")
+
         
     def ajoute_singature(self):
         x, y = self.canv_fact.coords("sing")
         frame_sing = tk.Frame(self.canv_fact, width=250, height=130, bg=COULEUR_LABEL)
         self.canv_fact.create_window(850, y + 30, anchor="n", window=frame_sing,tags="frame_sing")
-        SignatureFrame(self.canv_fact,frame_sing,self.id_utilisateur) 
+        self.singee = SignatureFrame(self.canv_fact,frame_sing,self.id_utilisateur) 
+        self.signature = self.singee.get_bien_singe() #valeur 1: bien singee , 0 : non singee
+
         # on done l'id pour singateur car on relier chaque singeur avec l'utilsature actuel ,, 
         # il paux modifer comme il veux, par contre la fois qu'il singe pas on prend son dernier signature 
 
@@ -185,24 +201,16 @@ class Facture:
         donnees_client = self.info_client.get_info()
         donnees_entrpris = self.info_entrprise.get_info()
         doonees_banque = json.dumps(self.info_bancaires.get_info())
-        print(doonees_banque)
-
-        #donnees_articles = json.dumps(self.info_table_articles.get_info())
+        
+        
         donnees_articles = json.dumps(self.info_table_articles.get_info()[0]) #une liste qui contiens des liste ( chaque article represnter dans une liste)
         donnees_payee = json.dumps(self.info_table_articles.get_info()[1:]) #[total_ht, total_ttc,remis,net, etat, mode, date_echan]
 
-        etat_facture = self.info_table_articles.get_info()[4]
+        solde = self.info_table_articles.get_info()[6]
+
+        remarque = self.text_remarq.get("1.0", "end-1c") if ( self.text_remarq.get("1.0", "end-1c") != "Ajouter des remarques") else ""
         
-        net = self.info_table_articles.get_info()[3]
-
-        remarque = self.text_remarq.get("1.0", "end-1c")
         
-
-        if( os.path.join(DATA_DIR, f"signature_{self.id_utilisateur}.png") ):
-            signature = os.path.join(DATA_DIR, f"signature_{self.id_utilisateur}.png")
-        else:
-            signature = None
-
 
         #requet de checher d'abord si la client deaje dans BDD , sinon on va l'ajouter
         requet_cl = f"SELECT num FROM client WHERE num = '{ref_client}' AND id_utilisateur = '{self.id_utilisateur}';"
@@ -236,10 +244,10 @@ class Facture:
         requet_fact = self.BDD.execute_requete(requet_fact)
         if ( len(requet_fact) == 0 ):
             # si elle n'existe pas ou on la cree
-            requet_fact = "INSERT INTO facture (num, date_fac, intervens, remarque, etat_fac, net_pay,info_pay, infos_banque, sign, id_utilisateur, ref_client) \
-                VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            requet_fact = "INSERT INTO facture (num, date_fac, intervens, remarque, solde_du , info_pay, infos_banque, signatur, id_utilisateur, ref_client) \
+                VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
-            valeurs = (num_fact, date_fact, donnees_articles, remarque, etat_facture, net, donnees_payee, doonees_banque, signature, self.id_utilisateur, ref_client)
+            valeurs = (num_fact, date_fact, donnees_articles, remarque, solde, donnees_payee, doonees_banque, self.signature, self.id_utilisateur, ref_client)
             resultat = self.BDD.execute_requete(requet_fact, valeurs)
 
         else:
@@ -248,14 +256,15 @@ class Facture:
             sup_encien = self.BDD.execute_requete(encien_val)
 
             #on ajoute la nouvelle 
-            requet_fact = "INSERT INTO facture (num, date_fac, intervens, remarque, etat_fac, net_pay,info_pay, infos_banque, sign, id_utilisateur, ref_client) \
-                VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            requet_fact = "INSERT INTO facture (num, date_fac, intervens, remarque, solde_du , info_pay, infos_banque, signatur, id_utilisateur, ref_client) \
+                VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
-            valeurs = (num_fact, date_fact, donnees_articles, remarque, etat_facture, net, donnees_payee, doonees_banque, signature, self.id_utilisateur, ref_client)
+            valeurs = (num_fact, date_fact, donnees_articles, remarque, solde, donnees_payee, doonees_banque, self.signature, self.id_utilisateur, ref_client)
             resultat = self.BDD.execute_requete(requet_fact, valeurs)
-        self.frame_fact.destroy()
-        self.canv_fact.destroy()
-        self.root.event_generate("<<retour_history_fact>>")
+
+        messagebox.showinfo("Information", "La facture a été correctement enregistrée.")
+
+        self.deja_enregist = 1
 
 
 
@@ -268,6 +277,7 @@ class Facture:
                 requet_fact = self.BDD.execute_requete(requet_fact)
                 if ( len(requet_fact) != 0 ):
                     self.encien_facture = requet_fact[0]
+                    self.canv_fact.delete("all")
                     self.cree_facture()
             else:
                 messagebox.showerror("Erreur", "Le numéro de facture est invalide. Il doit commencer par FAC000.")
@@ -283,14 +293,18 @@ class Facture:
                 requet_cl = self.BDD.execute_requete(requet_cl)
                 if (len(requet_cl) != 0 ):
                     self.tous_infos_client = requet_cl[0]
-                    print(self.tous_infos_client)
                     self.remplir_client()
 
             else:
                 messagebox.showerror("Erreur", "Le numéro de client est invalide. Il doit commencer par CL000.")
 
 
-    def annule(self):
+    def retour(self):
+        if self.deja_enregist != 1:
+            reponse = tk.messagebox.askquestion("Question", "Voulez-vous sauvegarder les modifications ?")
+            if reponse == 'yes':
+                self.enregistrer()
+
         self.frame_fact.destroy()
         self.canv_fact.destroy()
         self.root.event_generate("<<retour_history_fact>>")
@@ -308,6 +322,6 @@ class Facture:
             self.canvas.config(width=x, height=y)
             self.canvas.place(x=0, y=(y //11.42))
 
-            self.frame_fact.config(width=1000, height=(y-80))
+            self.frame_fact.config(width=1000, height=(y//1.176))
             self.frame_fact.place(x=(x-1000)//2, y=10)
-            self.canv_fact.config(width=1000,height=(y-80))
+            self.canv_fact.config(width=1000,height=(y//1.176))

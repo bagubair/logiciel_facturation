@@ -141,7 +141,7 @@ class TableConvertArticle():
 
 
     def ajoute_article(self):
-        new_article = Article(self.canv_devis, self.y, self.nb, self)
+        new_article = Article(self.canv_fact, self.y, self.nb, self)
         self.list_article.append(new_article)
         self.nb += 1
 
@@ -214,7 +214,6 @@ class TableConvertArticle():
                 self.total_ht += artcl.get_info()[4]
                 self.total_ttc += artcl.get_info()[5]
             else:
-                print(artcl)
                 self.total_ht += artcl[4]
                 self.total_ttc += artcl[5]
 

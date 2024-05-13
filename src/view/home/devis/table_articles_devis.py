@@ -133,19 +133,16 @@ class TableArticleDevis():
         articles = []
         total_ht = 0
         total_ttc = 0
-        if(self.encien_valeur):
-            print("eeeeee")
-            for artcl in self.list_article:
+        for artcl in self.list_article:
+            if not isinstance(artcl, list): #on fait ce test parceque les articles deja  existe sont representer de type list par contre nouvelle article sont de type objet Article
+                articles.append(artcl.get_info())
+                total_ht += artcl.get_info()[4]
+                total_ttc += artcl.get_info()[5]
+            else:
                 articles.append(artcl)
                 total_ht += artcl[4]
                 total_ttc += artcl[5]
 
-        else:
-            print("zzzzz", self.list_article)
-            for atricle in self.list_article:
-                articles.append(atricle.get_info())
-                total_ht += atricle.get_info()[4]
-                total_ttc += atricle.get_info()[5]
 
         return [articles, total_ht, total_ttc]
 

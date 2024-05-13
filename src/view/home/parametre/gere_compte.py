@@ -135,17 +135,19 @@ class GereCompte():
         self.fram_compte.destroy()
 
     def supprime(self):
-        delet_fact_compt = f"DELETE FROM facture WHERE id_utilisateur = '{self.id_utilisateur}' ;"
-        self.BDD.execute_requete(delet_fact_compt)
+        reponse = tk.messagebox.askquestion("Question", "Êtes-vous sûr de vouloir supprimer votre compte ?")
+        if reponse == 'yes':
+            delet_fact_compt = f"DELETE FROM facture WHERE id_utilisateur = '{self.id_utilisateur}' ;"
+            self.BDD.execute_requete(delet_fact_compt)
 
-        delet_client_compt = f"DELETE FROM client WHERE id_utilisateur = '{self.id_utilisateur}' ;"
-        self.BDD.execute_requete(delet_client_compt)
+            delet_client_compt = f"DELETE FROM client WHERE id_utilisateur = '{self.id_utilisateur}' ;"
+            self.BDD.execute_requete(delet_client_compt)
 
-        delete_entrpeise_compt = f"DELETE FROM  entreprise WHERE id_utilisateur = '{self.id_utilisateur}' ;"
-        self.BDD.execute_requete(delete_entrpeise_compt)
+            delete_entrpeise_compt = f"DELETE FROM  entreprise WHERE id_utilisateur = '{self.id_utilisateur}' ;"
+            self.BDD.execute_requete(delete_entrpeise_compt)
 
-        delet_compte = f"DELETE FROM utilisateur WHERE ID = '{self.id_utilisateur}' ;"
-        self.BDD.execute_requete(delet_compte)
+            delet_compte = f"DELETE FROM utilisateur WHERE ID = '{self.id_utilisateur}' ;"
+            self.BDD.execute_requete(delet_compte)
 
         
 

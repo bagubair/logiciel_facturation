@@ -104,9 +104,11 @@ class Home:
         Parametre(self.root,self.frame_button,self.BDD, self.id_utilisateur) #defini dans gere_compte.py
 
     def deconnecter(self):
-        self.canvas_home.destroy()
-        self.frame_button.destroy
-        self.root.event_generate("<<retour_login_clicked>>")
+        reponse = tk.messagebox.askquestion("Question", "Voulez-vous déconnecter ? ?")
+        if reponse == 'yes':
+            self.canvas_home.destroy()
+            self.frame_button.destroy
+            self.root.event_generate("<<retour_login_clicked>>")
         
 
 
