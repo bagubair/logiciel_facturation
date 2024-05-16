@@ -16,7 +16,7 @@ class InfosEntreprise():
         self.BDD = BDD
         self.id_utilisateur = id_utilisateur  #pour chercher si ces infos deaj existe dans basse et aussi pour relier nom d'image logo per son id 
 
-        
+        self.infos_entr = None
         self.cherche_infos_entr() #on voir table basse donne si avoir l'infos de l'entrprise 
 
         self.image_logo = None #ici pour faire referance de l'image pour son affichage 
@@ -91,14 +91,14 @@ class InfosEntreprise():
 
     def cherche_infos_entr(self):
         requt = f"SELECT * FROM entreprise WHERE id_utilisateur = '{self.id_utilisateur}';"
-        list_info = self.BDD.execute_requete(requt)[0]
+        list_info = self.BDD.execute_requete(requt)
         if (len(list_info) == 0):
             #si l'infos d'entrprise n'existe pas dans table 
             self.infos_entr = None
         else:
             #on verifeir les 3 infos princibal : nom,adresse et mail ; sans les 3 infos on peux pas afficher l'infos existe dans table 
-            if (list_info[0] != "") and (list_info[1] != "") and (list_info[2] != ""):
-                self.infos_entr = list_info
+            if (list_info[0][0] != "") and (list_info[0][1] != "") and (list_info[0][2] != ""):
+                self.infos_entr = list_info[0]
 
 
     def event_entry_case(self):
@@ -130,11 +130,15 @@ class InfosEntreprise():
         )
         if self.chemin_logo:
             try:
-                origin_image = Image.open(self.chemin_logo)
-                copie_image = origin_image.copy() #on crre un copie pour mettre dans donner de logiciel
-                copie_image.save(f"DATA/logo_{self.id_utilisateur}.png")
+                # Supprimer l'image existante s'il y en a une
+                #if os.path.exists(os.path.join(DATA_DIR, f"logo_{self.id_utilisateur}.png")):
+                    #os.remove(os.path.join(DATA_DIR, f"logo_{self.id_utilisateur}.png"))
+            
+                #origin_image = Image.open(self.chemin_logo)
+                #copie_image = origin_image.copy() #on crre un copie pour mettre dans donner de logiciel
+                #copie_image.save(f"DATA/logo_{self.id_utilisateur}.png")
 
-                self.chemin_logo = os.path.join(DATA_DIR, f"logo_{self.id_utilisateur}.png")
+                #self.chemin_logo = os.path.join(DATA_DIR, f"logo_{self.id_utilisateur}.png")
                 self.image_logo = size_photo(self.chemin_logo, 220,150)
                 
                 if self.logo:

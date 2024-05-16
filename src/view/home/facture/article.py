@@ -98,8 +98,8 @@ class Article():
         qnt = self.entry_qnt.get() if est_nombre( self.entry_qnt.get() )  else "0"
         tva = self.prix_tva.get() if est_nombre( self.prix_tva.get() ) else "0"
 
-        prix_ht = self.get_total_ht(prix_unit,qnt)
-        prix_ttc = self.get_TTC(prix_unit,qnt,tva)
+        prix_ht = round(self.get_total_ht(prix_unit,qnt) , 2)
+        prix_ttc = round(self.get_TTC(prix_unit,qnt,tva), 2)
 
         self.update_list_infos()
 

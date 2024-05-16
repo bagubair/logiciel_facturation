@@ -1,0 +1,45 @@
+@startuml
+left to right direction
+:artisant : as a
+:BDD : as b << Application >>
+package Syeteme{
+    usecase "Creer un compte" as UC1
+    usecase "Modifier compte" as UC2
+    usecase "Ajouter informations de son entreprise " as UC3
+    usecase "Creet une facture" as UC4
+    usecase "Modifier une facture" as UC5
+    usecase "Supprimer une facture" as UC6
+    usecase "Creer un devis" as UC7
+    usecase "Modifier un devis" as UC8
+    usecase "Supprimer un devis" as UC9
+    usecase "Ajouter un client" as UC10
+    usecase "Modifier un client" as UC11
+    usecase "Supprimer un client" as UC12
+}
+a -- UC1
+UC1 -- b
+a -- UC2
+UC2 -- b
+a -- UC3
+UC3 -- b
+a -- UC4
+UC4 -- b
+a -- UC5
+UC5 -- b
+a -- UC6
+UC6 -- b
+a -- UC7
+(UC7).>(UC4):extends
+UC7 -- b
+a -- UC8
+UC8 -- b
+a -- UC9
+UC9 -- b
+a -- UC10
+UC10 -- b
+a -- UC11
+UC11 -- b 
+a -- UC12
+UC12 -- b
+
+@enduml

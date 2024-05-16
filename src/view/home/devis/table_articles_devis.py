@@ -144,7 +144,7 @@ class TableArticleDevis():
                 total_ttc += artcl[5]
 
 
-        return [articles, total_ht, total_ttc]
+        return [articles, round(total_ht,2), round(total_ttc,2)]
 
     def calcule_total(self):
         self.total_ht = 0

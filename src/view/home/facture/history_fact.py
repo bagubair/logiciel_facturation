@@ -92,10 +92,13 @@ class HistoryFacture:
         self.lis_button_fact[0].config(bg=COULEUR_CANVAS)
         self.button_active = 0
 
-        self.requet_tous_fact = f"SELECT facture.num, client.nom, client.prenom, facture.date_fac, facture.solde_du FROM client, facture WHERE client.num = facture.ref_client AND facture.id_utilisateur = {self.id_utilisateur}"
+        self.requet_tous_fact = f"""SELECT facture.num, client.nom, client.prenom, facture.date_fac, facture.solde_du
+                        FROM client
+                        INNER JOIN facture ON client.num = facture.ref_client
+                        WHERE  facture.id_utilisateur = {self.id_utilisateur}"""
         self.requet_tous_fact = self.BDD.execute_requete(self.requet_tous_fact)
 
-
+        print(self.requet_tous_fact)
         self.listbox.delete(0, tk.END)
         for fact in self.requet_tous_fact:
             nom_client = f"{fact[1]} {fact[2]}"

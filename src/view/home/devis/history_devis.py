@@ -45,12 +45,16 @@ class Devis():
         self.listbox = tk.Listbox(self.canvas, selectmode=tk.SINGLE,  width=1090, height=500, font=(POLICE,10))
         self.canvas.create_window(600, 115, width=1090, height=500, anchor="n", window=self.listbox, tags="listbox")
 
-        requet_devis = f"SELECT devis.num, client.nom, client.prenom, devis.montant FROM client, devis WHERE client.num = devis.ref_client AND devis.id_utilisateur = {self.id_utilisateur}"
+        requet_devis = f"""SELECT devis.num, client.nom, client.prenom, devis.montant 
+                        FROM client
+                        INNER JOIN devis ON client.num = devis.ref_client
+                        WHERE  devis.id_utilisateur = {self.id_utilisateur}"""
         requet_devis  = self.BDD.execute_requete( requet_devis )
         
         for devis in requet_devis:
             nom_client = f"{devis[1]}   {devis[2]}"
-            format_info = f"{'':<25}{ devis[0] :<38}{devis[3]:>15}"
+            
+            format_info = f"{'':<25}{ devis[0] :<70}{nom_client[0:17]:<75}{devis[3]:>15}"
             self.listbox.insert(tk.END, format_info)
 
 
@@ -81,7 +85,7 @@ class Devis():
         self.listbox.delete(0, tk.END)
         for devis in resultat_recherche:
             nom_client = f"{devis[1]}   {devis[2]}"
-            format_info = f"{'':<25}{ devis[0] :<38}{devis[3]:>15}"
+            format_info = f"{'':<25}{ devis[0] :<70}{nom_client[0:17]:<75}{devis[3]:>15}"
             self.listbox.insert(tk.END, format_info)
 
 
@@ -115,7 +119,7 @@ class Devis():
             self.listbox.delete(0, tk.END)
             for devis in requet_devis:
                 nom_client = f"{devis[1]}   {devis[2]}"
-                format_info = f"{'':<25}{ devis[0] :<38}{devis[3]:>15}"
+                format_info = f"{'':<25}{ devis[0] :<70}{nom_client[0:17]:<75}{devis[3]:>15}"
                 self.listbox.insert(tk.END, format_info)
         else:
             messagebox.showerror("Erreur", "Vous devez sélectionner une devis.")

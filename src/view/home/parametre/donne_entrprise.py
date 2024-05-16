@@ -29,13 +29,22 @@ class GereEntrprise():
         
         
         requt_entrpris = f"SELECT * FROM entreprise WHERE id_utilisateur = '{self.id_utilisateur}' ;"
-        tous_ifos = self.BDD.execute_requete(requt_entrpris)[0]
-        self.nom_entr = tous_ifos[0]
-        self.addres = tous_ifos[1]
-        self.mail = tous_ifos[2]
-        self.fixe = tous_ifos[3]
-        self.nb_sr = tous_ifos[4]
-        self.log = tous_ifos[5]
+        tous_ifos = self.BDD.execute_requete(requt_entrpris)
+        if (len(tous_ifos)!= 0) :
+
+            self.nom_entr = tous_ifos[0][0]
+            self.addres = tous_ifos[0][1]
+            self.mail = tous_ifos[0][2]
+            self.fixe = tous_ifos[0][3]
+            self.nb_sr = tous_ifos[0][4]
+            self.log = tous_ifos[0][5]
+        else:
+            self.nom_entr = ""
+            self.addres = ""
+            self.mail = ""
+            self.fixe = ""
+            self.nb_sr = ""
+            self.log =None
         
 
         self.fram_infos = tk.Frame(self.canvas,width=450, height=530, bg=COULEUR_LABEL)
@@ -154,11 +163,11 @@ class GereEntrprise():
         if self.chemin_logo:
             try:
                 # Ouvrir l'image avec PIL
-                origin_image = Image.open(self.chemin_logo)
-                copie_image = origin_image.copy()
-                copie_image.save(f"DATA/logo_{self.id_utilisateur}.png")
+                #origin_image = Image.open(self.chemin_logo)
+                #copie_image = origin_image.copy()
+                #copie_image.save(f"DATA/logo_{self.id_utilisateur}.png")
 
-                self.chemin_logo = os.path.join(DATA_DIR, f"logo_{self.id_utilisateur}.png")
+                #self.chemin_logo = os.path.join(DATA_DIR, f"logo_{self.id_utilisateur}.png")
                 self.image_logo = size_photo(self.chemin_logo, 220,150)
                 if self.frame_logo:
                     self.canvas_itern.delete("frame_logo")

@@ -25,7 +25,7 @@ class CreeDevis():
         self.id_utilisateur = id_utilisateur
         self.encien_devis = encien_devis #dans cas juste modifier une devis 
         
-        self.signature = 0
+        self.avoir_signature = 0
         
         self.root.after(10, self.initialisation)
         self.root.bind("<Configure>", self.on_config)
@@ -61,7 +61,7 @@ class CreeDevis():
         bouton_enregs = tk.Button(self.canvas, text="Enregistrer",height=1,bg=COULEUR_BOUTON,fg=COULEUR_TEXT_BOUTON,font=(POLICE, 11,"bold"), command=lambda: self.enregistrer())
         self.canvas.create_window(570, 863, anchor="n", window=bouton_enregs,tags="bouton_enregs")
 
-        bouton_pdf = tk.Button(self.canvas, text="Afficher en PDF",height=1,bg=COULEUR_PRINCIPALE,font=(POLICE, 11,"bold"), command=lambda: self.convert_pdf())
+        bouton_pdf = tk.Button(self.canvas, text="Enregistrer en PDF",height=1,bg=COULEUR_PRINCIPALE,font=(POLICE, 11,"bold"), command=lambda: self.convert_pdf())
         self.canvas.create_window(820, 863, anchor="n", window=bouton_pdf,tags="bouton_pdf")
 
         #on on prend l'event soit par taper Entre ou FoucusOut pour sorris
@@ -162,11 +162,12 @@ class CreeDevis():
         self.canv_devis.create_window(950, self.y + 270, anchor="n", window=bouton_sing,tags="ajoute_sing")
 
     def ajoute_singature(self):
+        self.avoir_signature = 1
         x, y = self.canv_devis.coords("sing")
         frame_sing = tk.Frame(self.canv_devis, width=250, height=130, bg=COULEUR_LABEL)
         self.canv_devis.create_window(850, y + 30, anchor="n", window=frame_sing,tags="frame_sing")
-        sign = SignatureFrame(self.canv_devis,frame_sing,self.id_utilisateur) 
-        self.signature = sign.get_bien_singe()
+        self.sign = SignatureFrame(self.canv_devis,frame_sing,self.id_utilisateur) 
+        
         # on done l'id pour singateur car on relier chaque singeur avec l'utilsature actuel ,, 
         # il paux modifer comme il veux, par contre la fois qu'il singe pas on prend son dernier signature 
 
@@ -183,6 +184,10 @@ class CreeDevis():
         montant = self.infos_articles.get_info()[2]
 
         remarque = self.text_remarq.get("1.0", "end-1c")
+        if(self.avoir_signature):
+            self.signature = self.sign.get_bien_singe()
+        else:
+            self.signature = 0
 
         #requet de checher d'abord si la client deaje dans BDD , sinon on va l'ajouter
         requet_cl = f"SELECT num FROM client WHERE num = '{ref_client}' AND id_utilisateur = '{self.id_utilisateur}';"
@@ -239,15 +244,7 @@ class CreeDevis():
 
         
 
-    def retour(self):
-        if self.deja_enregist != 1:
-            reponse = tk.messagebox.askquestion("Question", "Voulez-vous sauvegarder les modifications ?")
-            if reponse == 'yes':
-                self.enregistrer()
-
-        self.frame_devis.destroy()
-        self.canv_devis.destroy()
-        self.root.event_generate("<<retour_page_devis>>")
+    
 
     def convert_pdf(self):
         num_devis = self.entry_num_devis.get() if (self.entry_num_devis.get()[0:6] =="DEV000") else f"DEV000{self.num_devis +1 }"
@@ -261,11 +258,71 @@ class CreeDevis():
         donnees_articles = self.infos_articles.get_info()[0] #une liste qui contiens des liste ( chaque article represnter dans une liste) + total htt et total ttc
 
         info_pay = self.infos_articles.get_info()[1:]
+        montant = info_pay[1]
         remarque = self.text_remarq.get("1.0", "end-1c")
-        info_supplem =[info_pay, remarque, 0]
 
-        convert_pdf(self.id_utilisateur, infos_devis, donnees_entrpris, donnees_client, donnees_articles, info_supplem, "devis")
+        if(self.avoir_signature):
+            self.signature = self.sign.get_bien_singe()
+        else:
+            self.signature = 0
+        info_supplem =[info_pay, remarque, self.signature]
+        
+        convert_pdf(self.id_utilisateur, infos_devis, donnees_entrpris, donnees_client, donnees_articles, info_supplem, 1)
 
+
+        #apres convertir en pdf on l'enrigstrer dans base donnes
+
+        #requet de checher d'abord si la client deaje dans BDD , sinon on va l'ajouter
+        requet_cl = f"SELECT num FROM client WHERE num = '{ref_client}' AND id_utilisateur = '{self.id_utilisateur}';"
+        requet_cl = self.BDD.execute_requete(requet_cl)
+        if (len(requet_cl) == 0 ):
+            #si le client n'est pas encore dans table client , on va l'ajouter
+            requet_cl = "INSERT INTO client (num, nom, prenom, adresse, tel_fax, mobil, id_utilisateur) \
+                    VALUES(%s, %s, %s, %s, %s, %s, %s )" 
+
+            valeurs = (ref_client, donnees_client[0], donnees_client[1], donnees_client[2], donnees_client[3], donnees_client[4] , self.id_utilisateur )
+
+            self.BDD.execute_requete(requet_cl,valeurs)
+        else:
+            pass #si deja existe
+
+        #on cherche le devis par son num , si il existe deja ( pour juste modifier l'infos ) sinon on cree une nouvelle
+        requet_devis = f"SELECT num FROM devis WHERE num = '{num_devis}' AND id_utilisateur = '{self.id_utilisateur}';"
+        requet_devis = self.BDD.execute_requete(requet_devis)
+        if ( len(requet_devis) == 0 ):
+            # si elle n'existe pas ou on la cree
+            requet_devis = "INSERT INTO devis (num, date_devis, intervens, montant, remarque, signatur, id_utilisateur, ref_client) \
+                VALUES(%s, %s, %s, %s, %s, %s, %s, %s)"
+
+            valeurs = (num_devis, date_devis, json.dumps(self.infos_articles.get_info() ), montant, remarque, self.signature , self.id_utilisateur, ref_client)
+            resultat = self.BDD.execute_requete(requet_devis, valeurs)
+
+        else:
+            #ici au liux de parcourir chaque infos pour update , s'il y'a des modification on va supprimer l'encien facture et on ajoute la nouvelle modifiee
+            encien_val = f"DELETE FROM devis  WHERE num = '{num_devis}' AND id_utilisateur = '{self.id_utilisateur}';"
+            sup_encien = self.BDD.execute_requete(encien_val)
+
+            #on ajoute la nouvelle 
+            requet_devis = "INSERT INTO devis (num, date_devis, intervens, montant, remarque, signatur, id_utilisateur, ref_client) \
+                VALUES(%s, %s, %s, %s, %s, %s, %s, %s)"
+
+            valeurs = (num_devis, date_devis, json.dumps(self.infos_articles.get_info() ), montant, remarque, self.signature , self.id_utilisateur, ref_client)
+            resultat = self.BDD.execute_requete(requet_devis, valeurs)
+
+        messagebox.showinfo("Information", f"Le devis a été  enregistré dans fichier {f"DATA/{num_devis}_ID_{self.id_utilisateur}"}.pdf")
+        self.deja_enregist = 1
+
+    def retour(self):
+        if self.deja_enregist != 1:
+            reponse = tk.messagebox.askquestion("Question", "Voulez-vous sauvegarder les modifications ?")
+            if reponse == 'yes':
+                self.enregistrer()
+
+        self.frame_devis.destroy()
+        self.canv_devis.destroy()
+        self.root.event_generate("<<retour_page_devis>>")
+
+        
     def get_num_devis(self,event=None):
         if(self.entry_num_devis.get() != f"DEV000{self.num_devis +1 }"): 
             #on cherche la facture par son num , si il existe deja ( pour juste modifier l'infos ) sinon on cree une nouvelle

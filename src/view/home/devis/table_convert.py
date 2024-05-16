@@ -204,7 +204,7 @@ class TableConvertArticle():
         mode = self.mode_paiement.get()
         date_echan = self.ent_date_ech.get()
 
-        return [articles, total_ht, total_ttc,remis,net, solde, mode, date_echan]
+        return [articles, round(total_ht, 2), round(total_ttc,2),round(remis,2),round(net,2), round(solde,2), mode, date_echan]
 
     def calcule_total(self):
         self.total_ht = 0
@@ -227,14 +227,14 @@ class TableConvertArticle():
     def modif_net_payer(self, event=None):
         mont_remis = float(self.entr_remise.get()) if (est_nombre(self.entr_remise.get()) ) else "0"
         
-        self.net_a_payer_label.config(text=f"  Net à payer  :  { self.total_ttc - mont_remis} €")
+        self.net_a_payer_label.config(text=f"  Net à payer  :  {round( self.total_ttc - mont_remis , 2)} €")
         self.update_solde()
 
     def update_solde(self, event=None):
         mont_remis = float(self.entr_remise.get()) if (est_nombre(self.entr_remise.get()) ) else "0"
         mont_pay = float(self.entr_mont.get() ) if est_nombre( self.entr_mont.get() ) else "0"
 
-        self.solde.config(text=f"  Solde Dû  :  { (self.total_ttc - float(mont_remis)) - float(mont_pay)  } €")
+        self.solde.config(text=f"  Solde Dû  :  { round((self.total_ttc - float(mont_remis)) - float(mont_pay) , 2) } €")
 
 
 

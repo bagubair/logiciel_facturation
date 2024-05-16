@@ -210,11 +210,11 @@ class TableArticle():
                 total_ht += artcl[4]
                 total_ttc += artcl[5]
 
-        remis =float( self.entr_remise.get()) if (est_nombre(self.entr_remise.get()) ) else "0"
-        net = total_ttc - remis 
-        mont_pay = float(self.entr_mont.get() ) if est_nombre( self.entr_mont.get() ) else "0"
+        remis = round( float( self.entr_remise.get()) , 2) if (est_nombre(self.entr_remise.get()) ) else "0"
+        net = round( total_ttc - remis , 2) 
+        mont_pay = round( float(self.entr_mont.get()) , 2)  if est_nombre( self.entr_mont.get() ) else "0"
         
-        solde = float(net) - float(mont_pay)
+        solde = round( float(net) - float(mont_pay) , 2)
         mode = self.mode_paiement.get()
         date_echan = self.ent_date_ech.get()
 
@@ -231,8 +231,8 @@ class TableArticle():
                 self.total_ht += artcl[4]
                 self.total_ttc += artcl[5]
 
-        self.total_ht_label.config(text=f"   Total HT :   {self.total_ht } € ")
-        self.total_ttc_label.config(text=f"   Total TTC :  {self.total_ttc } €")
+        self.total_ht_label.config(text=f"   Total HT :   {round(self.total_ht,2) } € ")
+        self.total_ttc_label.config(text=f"   Total TTC :  {round(self.total_ttc,2) } €")
 
         self.modif_net_payer()
 
@@ -241,14 +241,14 @@ class TableArticle():
     def modif_net_payer(self, event=None):
         mont_remis = float(self.entr_remise.get()) if (est_nombre(self.entr_remise.get()) ) else "0"
         
-        self.net_a_payer_label.config(text=f"  Net à payer  :  { self.total_ttc - mont_remis} €")
+        self.net_a_payer_label.config(text=f"  Net à payer  :  {round( self.total_ttc - mont_remis , 2)} €")
         self.update_solde()
 
     def update_solde(self, event=None):
         mont_remis = float(self.entr_remise.get()) if (est_nombre(self.entr_remise.get()) ) else "0"
         mont_pay = float(self.entr_mont.get() ) if est_nombre( self.entr_mont.get() ) else "0"
 
-        self.solde.config(text=f"  Solde Dû  :  { (self.total_ttc - float(mont_remis)) - float(mont_pay)  } €")
+        self.solde.config(text=f"  Solde Dû  :  {round( (self.total_ttc - float(mont_remis)) - float(mont_pay), 2)  } €")
 
 
 

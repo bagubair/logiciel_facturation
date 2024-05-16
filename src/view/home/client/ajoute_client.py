@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 
 from const import *
-from tools.event_entry import effacer_indicatif
+from tools.event_entry import effacer_indicatif, effacer_Text_indicatif
 
 
 
@@ -108,6 +108,7 @@ class AjouteClient():
             self.entr_prenom.bind("<FocusIn>", lambda event: effacer_indicatif(self.entr_prenom,"Prénom"))
 
             
+            
             self.entr_fixe.config(fg="gray")
             self.entr_fixe.insert(0, "(123) 456 789")
             self.entr_fixe.bind("<FocusIn>", lambda event: effacer_indicatif(self.entr_fixe,"(123) 456 789"))
@@ -116,7 +117,7 @@ class AjouteClient():
             self.entr_mobil.insert(0, "(123) 456 789")
             self.entr_mobil.bind("<FocusIn>", lambda event: effacer_indicatif(self.entr_mobil,"(123) 456 789"))
 
-
+            
 
         
     
@@ -128,7 +129,7 @@ class AjouteClient():
         adresse = self.entr_adres.get("1.0", "end-1c")
         tel_fixe = self.entr_fixe.get() if ( self.entr_fixe.get() !=  "(123) 456 789" ) else ""
         mobil = self.entr_mobil.get()  if ( self.entr_mobil.get() !=  "(123) 456 789") else ""
-        comet = self.entr_comentair.get("1.0", "end-1c")
+        comet = self.entr_comentair.get("1.0", "end-1c") 
 
         if( self.nuplet_client != None):
             #on mise a jour les infos qui sont chnagees 

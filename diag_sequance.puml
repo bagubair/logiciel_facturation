@@ -1,0 +1,48 @@
+@startuml
+actor artisant as a
+a-> SI : crée son compte et se connecte au système.
+SI -> SI : verifier compte
+ref over a,SI : S'authentifier
+opt
+    a -> SI : choisit de créer une facture
+
+    SI -> SI : verifier infos artisant
+    alt existe
+        SI-> SI : Remplissage auto des infos
+    else non existe 
+        a -> SI : Saisie des informations (nom de l'entreprise, adresse...)
+    end
+    a -> SI : saisie numero de client
+    SI -> SI : verifier si client deja existe
+    alt existe
+        SI-> SI : Remplissage auto d'infos client
+    else non existe 
+        a -> SI : Saisie des informations (nom client, adresse...)
+    end
+    loop
+        a -> SI : ajoute description de l'intervention , prix unitaire ,qnt et TVA 
+    end
+    SI -> a : afficher total HT, total TTC et net à payer
+    opt
+        a -> SI : saisi montant remise
+        SI -> a : modifier net à payer et solde du
+    end
+    opt
+        a -> SI : saisi montant payer
+        SI -> a : modifier solde du
+    end
+    a -> SI : Identifier le mode de paiement
+    alt carte
+        a-> SI : saisi infos bancaires
+    end
+
+    opt
+        a -> SI : ajouter des remarque et signature
+    end
+    a -> SI : Cliquer sur Enregistrer
+    SI -> a : envoi OK
+end
+a -> SI : Se déconnecter 
+
+
+@enduml

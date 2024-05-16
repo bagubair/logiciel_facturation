@@ -79,7 +79,7 @@ class Client():
         self.modf = tk.Button(self.canvas, width=10, height=2,text="Modifier", command=lambda:self.modf_client() ,bg=COULEUR_PRINCIPALE,font=(POLICE, 11,"bold"))
         self.canvas.create_window(500,660 , anchor="n", window=self.modf,tags="lire")
 
-        self.voir = tk.Button(self.canvas, width=10, height=2,text="Voir", command=lambda:self.voir_client() ,bg=COULEUR_PRINCIPALE,font=(POLICE, 11,"bold"))
+        self.voir = tk.Button(self.canvas, width=10, height=2,text="Afficher", command=lambda:self.voir_client() ,bg=COULEUR_PRINCIPALE,font=(POLICE, 11,"bold"))
         self.canvas.create_window(630,660 , anchor="n", window=self.voir,tags="voir")
         
         self.supprim = tk.Button(self.canvas, width=10, height=2,text="Supprimer", command=lambda:self.supprim_client() ,bg=COULEUR_PRINCIPALE,font=(POLICE, 11,"bold"))

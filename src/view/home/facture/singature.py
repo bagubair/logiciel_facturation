@@ -26,7 +26,7 @@ class SignatureFrame():
         self.save_button = tk.Button(self.frame, text="Enregistrer", command=self.save_signature)
         self.save_button.pack(side=tk.RIGHT)
 
-        self.signature_image = Image.new("RGB", (250, 130), COULEUR_LABEL)
+        self.signature_image = Image.new("RGBA", (250, 130), (255, 255, 255, 0) )
         self.draw = ImageDraw.Draw(self.signature_image)
 
         self.canv_fact.update_idletasks()  
@@ -40,7 +40,7 @@ class SignatureFrame():
 
     def clear_signature(self):
         self.canvas.delete("all")
-        self.signature_image = Image.new("RGB", (250, 130), COULEUR_LABEL)
+        self.signature_image = Image.new("RGBA", (250, 130), (255, 255, 255, 0) )
         self.draw = ImageDraw.Draw(self.signature_image)
 
     def save_signature(self):
