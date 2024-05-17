@@ -94,6 +94,7 @@ class AjouteClient():
             self.entr_fixe.insert(0, fix)
             self.entr_mobil.insert(0, mob)
             self.entr_comentair.insert(tk.END, coment)
+            
 
         else:
 
@@ -107,7 +108,10 @@ class AjouteClient():
             self.entr_prenom.insert(0, "Prénom")
             self.entr_prenom.bind("<FocusIn>", lambda event: effacer_indicatif(self.entr_prenom,"Prénom"))
 
-            
+            self.entr_adres.config(fg="gray")
+            self.entr_adres.insert(tk.END, "Rue ....")
+            self.entr_adres.bind("<FocusIn>", lambda event: effacer_Text_indicatif(self.entr_adres,"Rue ...."))
+
             
             self.entr_fixe.config(fg="gray")
             self.entr_fixe.insert(0, "(123) 456 789")
@@ -118,6 +122,10 @@ class AjouteClient():
             self.entr_mobil.bind("<FocusIn>", lambda event: effacer_indicatif(self.entr_mobil,"(123) 456 789"))
 
             
+            self.entr_comentair.config(fg="gray")
+            self.entr_comentair.insert(tk.END, "Ajoute comentair")
+            self.entr_comentair.bind("<FocusIn>", lambda event: effacer_Text_indicatif(self.entr_comentair,"Ajoute comentair"))
+
 
         
     
@@ -126,10 +134,10 @@ class AjouteClient():
         num_client = self.entr_num .get() if (self.entr_num .get() != f"CL000{self.num_client + 1}") else f"CL000{self.num_client + 1}"
         nom_client = self.entr_nom.get() if  (self.entr_nom.get() != "Nom") else ""
         prenom = self.entr_prenom.get()  if ( self.entr_prenom.get() != "Prénom") else ""
-        adresse = self.entr_adres.get("1.0", "end-1c")
+        adresse = self.entr_adres.get("1.0", "end-1c") if ( self.entr_adres.get("1.0", "end-1c") != "Rue ....") else ""
         tel_fixe = self.entr_fixe.get() if ( self.entr_fixe.get() !=  "(123) 456 789" ) else ""
         mobil = self.entr_mobil.get()  if ( self.entr_mobil.get() !=  "(123) 456 789") else ""
-        comet = self.entr_comentair.get("1.0", "end-1c") 
+        comet = self.entr_comentair.get("1.0", "end-1c") if self.entr_comentair.get("1.0", "end-1c") != "Ajoute comentair" else ""
 
         if( self.nuplet_client != None):
             #on mise a jour les infos qui sont chnagees 

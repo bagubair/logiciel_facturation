@@ -128,22 +128,32 @@ class Client():
             client_info = self.listbox.get(index_client[0])
             num_client = client_info.split()[0]
 
-            suprime_client = f"DELETE FROM client WHERE num = '{num_client}' AND id_utilisateur = '{self.id_utilisateur}' ;"
-            self.BDD.execute_requete(suprime_client)
 
-            #on mise a jour l'affichage
-            self.listbox.delete(0, tk.END)
-            self.requet_client = f"SELECT * FROM client WHERE id_utilisateur = {self.id_utilisateur}"
-            self.requet_client  = self.BDD.execute_requete( self.requet_client )
+            #on regarde d'aborde si y'a des facture ou devis relier a ce cleint , s'y existe on peux pas supprimer 
+            if( self.BDD.execute_requete(f"SELECT * FROM facture WHERE ref_client = '{num_client}' AND id_utilisateur = '{self.id_utilisateur}' ;")):
+                messagebox.showerror("Erreur", "Vous ne pouvez pas supprimer ce client car il y a des factures liées à lui.") 
+
+            elif( self.BDD.execute_requete(f"SELECT * FROM devis WHERE ref_client = '{num_client}' AND id_utilisateur = '{self.id_utilisateur}' ;")):
+                messagebox.showerror("Erreur", "Vous ne pouvez pas supprimer ce client car il y a des devis liées à lui.") 
+
+            else:
+
+                suprime_client = f"DELETE FROM client WHERE num = '{num_client}' AND id_utilisateur = '{self.id_utilisateur}' ;"
+                self.BDD.execute_requete(suprime_client)
+
+                #on mise a jour l'affichage
+                self.listbox.delete(0, tk.END)
+                self.requet_client = f"SELECT * FROM client WHERE id_utilisateur = {self.id_utilisateur}"
+                self.requet_client  = self.BDD.execute_requete( self.requet_client )
         
-            for clien in self.requet_client:
-                if (clien[6] is not None ):
-                    comentair = clien[6]
-                else:
-                    comentair = ""
+                for clien in self.requet_client:
+                    if (clien[6] is not None ):
+                        comentair = clien[6]
+                    else:
+                        comentair = ""
             
-                format_info = f"{'':<9}{(clien[0] + (len(clien[0])%8)*" ")[0:8] :<18}{(clien[1] + (len(clien[1])%10)*" ")[0:10]:<26}{(clien[2] + (len(clien[2])%10)*" ")[0:10]:<32}{(clien[3] + (len(clien[3])%15)*" ")[0:15]:<37}{(clien[4] + (len(clien[4])%8)*" ")[0:8]:27}{(clien[5] + (len(clien[5])%8)*" ")[0:8]:25}{(comentair + (len(comentair)%8)*" ")[0:10]:>5}"
-                self.listbox.insert(tk.END, format_info)
+                    format_info = f"{'':<9}{(clien[0] + (len(clien[0])%8)*" ")[0:8] :<18}{(clien[1] + (len(clien[1])%10)*" ")[0:10]:<26}{(clien[2] + (len(clien[2])%10)*" ")[0:10]:<32}{(clien[3] + (len(clien[3])%15)*" ")[0:15]:<37}{(clien[4] + (len(clien[4])%8)*" ")[0:8]:27}{(clien[5] + (len(clien[5])%8)*" ")[0:8]:25}{(comentair + (len(comentair)%8)*" ")[0:10]:>5}"
+                    self.listbox.insert(tk.END, format_info)
         else:
             messagebox.showerror("Erreur", "Vous devez sélectionner un client.") 
             

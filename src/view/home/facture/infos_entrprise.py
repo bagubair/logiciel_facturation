@@ -16,11 +16,14 @@ class InfosEntreprise():
         self.BDD = BDD
         self.id_utilisateur = id_utilisateur  #pour chercher si ces infos deaj existe dans basse et aussi pour relier nom d'image logo per son id 
 
+    
         self.infos_entr = None
+        self.chemin_logo = None # ici le logo qu'on' retenu
+        self.image_logo = None #ici pour faire referance de l'image pour son affichage 
+        
+
         self.cherche_infos_entr() #on voir table basse donne si avoir l'infos de l'entrprise 
 
-        self.image_logo = None #ici pour faire referance de l'image pour son affichage 
-        self.chemin_logo = None # ici le logo qu'on' retenu
         self.info_entrprise()
         
 
@@ -69,11 +72,16 @@ class InfosEntreprise():
             self.logo = self.canv_fact.create_image(20, 30, anchor='nw', image=self.image_logo, tags="logo")
             
         else:
+            #on voir si y'a le logo 
+            if(self.chemin_logo ):
+                self.image_logo = size_photo(self.chemin_logo, 220,150)
+                self.logo = self.canv_fact.create_image(20, 30, anchor='nw', image=self.image_logo, tags="logo")
 
-            # Logo entreprise
-            self.logo = self.canv_fact.create_rectangle(15, 20, 270, 170, fill=COULEUR_PRINCIPALE,tags="logo")
-            # Ajout d'un label sur le rectangle
-            self.label_logo = self.canv_fact.create_text(140, 95, text="Ajoute Logo", font=("Arial", 10),tags="click")
+            else:
+                # Logo entreprise
+                self.logo = self.canv_fact.create_rectangle(15, 20, 270, 170, fill=COULEUR_PRINCIPALE,tags="logo")
+                # Ajout d'un label sur le rectangle
+                self.label_logo = self.canv_fact.create_text(140, 95, text="Ajoute Logo", font=("Arial", 10),tags="click")
         
             self.entry_nom.config(fg="gray")
             self.entry_nom.insert(0, "Nom Entreprise")
@@ -92,14 +100,21 @@ class InfosEntreprise():
     def cherche_infos_entr(self):
         requt = f"SELECT * FROM entreprise WHERE id_utilisateur = '{self.id_utilisateur}';"
         list_info = self.BDD.execute_requete(requt)
+        
         if (len(list_info) == 0):
             #si l'infos d'entrprise n'existe pas dans table 
             self.infos_entr = None
         else:
+            
             #on verifeir les 3 infos princibal : nom,adresse et mail ; sans les 3 infos on peux pas afficher l'infos existe dans table 
             if (list_info[0][0] != "") and (list_info[0][1] != "") and (list_info[0][2] != ""):
                 self.infos_entr = list_info[0]
-
+            
+            if(list_info[0][5] != ""):
+                #dans cas y'a le logo mais le nom et adre et mail n'existe pas 
+                self.chemin_logo = list_info[0][5]
+                
+                
 
     def event_entry_case(self):
         """on active l'event pour case enrty pour quand l'utilisateur tape le case , l'example existe va supprimer 
@@ -143,6 +158,7 @@ class InfosEntreprise():
                 
                 if self.logo:
                     self.canv_fact.delete("logo")
+                self.canv_fact.delete("click")
                 # Créer une nouvelle image sur le canevas
                 self.logo = self.canv_fact.create_image(20, 30, anchor='nw', image=self.image_logo, tags="logo")
             

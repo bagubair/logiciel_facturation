@@ -13,12 +13,34 @@ class BaseDeDonnee:
         self.cur = None
 
 
-    
+    def cree_dbname_si_non_existe(self):
+        """
+        Crée la base de données si elle n'existe pas.
+        """
+        conn = sql.connect(
+            dbname='postgres',  # Connexion à la base de données par défaut
+            user=self.user,
+            password=self.password,
+            host=self.host
+        )
+        conn.autocommit = True
+        cur = conn.cursor()
+
+        # Vérifiez si la base de données existe déjà
+        cur.execute(f"SELECT 1 FROM pg_database WHERE datname = '{self.dbname}'")
+        exists = cur.fetchone()
+
+        if not exists:
+            cur.execute(f'CREATE DATABASE {self.dbname}')
+
+        cur.close()
+        conn.close()
 
     def connect(self):
         """
         Pour se connecter à la base de donnée.
         """
+        self.cree_dbname_si_non_existe()
 
         self.conn = sql.connect(
             dbname=self.dbname,

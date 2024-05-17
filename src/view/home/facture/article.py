@@ -28,7 +28,7 @@ class Article():
         self.prix_tva.bind("<Return>", self.focus_out_event)
 
     def init_article(self): 
-        button_suprim = tk.Button(self.canv_fact, width=1, height=1, text="X", command=lambda: self.via_parent())
+        button_suprim = tk.Button(self.canv_fact, width=1, height=1, text="X", command=lambda i=self.nb: self.supprime(i))
         self.id_but = self.canv_fact.create_window(20, self.y, anchor="nw", window=button_suprim,tags=f"supprimer_{self.nb}")
  
         self.entry_des = tk.Text(self.canv_fact, bg="white", width=70, height=6)
@@ -106,8 +106,7 @@ class Article():
         return [descrip, prix_unit, qnt, tva, prix_ht, prix_ttc]
 
 
-    def via_parent(self):
-        self.parent.supprime_article(self.nb)
+    
 
     def supprime(self,nb):
         self.canv_fact.delete(f"supprimer_{nb}")
@@ -118,11 +117,18 @@ class Article():
         self.canv_fact.delete(f"get_tva_{nb}")
         self.canv_fact.delete(f"get_totC_{nb}")
 
-        return self.y #renvois sa postion pour quand mise a jour les suivant 
+        y = self.y #renvois sa postion pour quand mise a jour les suivant 
+        for new_nb in range( nb+1, len(self.parent.list_article) ):
+
+            self.mise_jour(new_nb, y)
+
+            self.modif_tags(new_nb, new_nb-1)
+            y += 100
+        self.parent.supprime_article(nb,y)
+        
 
     def mise_jour(self,nb, y):
         self.y = y
-        print("nb avant mod",self.nb)
         self.canv_fact.coords(f"supprimer_{nb}", 20, y)
         self.canv_fact.coords(f"descrip_{nb}", 50,y )
         self.canv_fact.coords(f"prix_{nb}", 560,y)
@@ -132,7 +138,6 @@ class Article():
         self.canv_fact.coords(f"get_totC_{nb}", 900, y)
 
     def modif_tags(self,nb,new_nb):
-        print("new_nb",new_nb)
         self.canv_fact.itemconfigure(f"supprimer_{nb}", tags=f"supprimer_{new_nb}")
         self.canv_fact.itemconfigure(f"descrip_{nb}", tags=f"descrip_{new_nb}")
         self.canv_fact.itemconfigure(f"prix_{nb}", tags=f"prix_{new_nb}")

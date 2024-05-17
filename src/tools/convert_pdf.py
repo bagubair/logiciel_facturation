@@ -40,7 +40,7 @@ def convert_pdf(id_utilisateur, info_facture, info_entreprise, info_client, tabl
     doc.append(f'Adresse : {info_entreprise[1]}\n')
     doc.append(f'Mail : {info_entreprise[2]}\n')
     doc.append(f'Tél. Fixe : {info_entreprise[3]}\n')
-    doc.append(f'N° SIREN/SIRET : {info_entreprise[4]}\n\n')
+    doc.append(f'N° SIREN/SIRET : {info_entreprise[4]}\n')
 
     doc.append("# ) Informations du Client : \n")
     doc.append(f'Nom Client  : {info_client[0]}\n')
@@ -85,7 +85,7 @@ def convert_pdf(id_utilisateur, info_facture, info_entreprise, info_client, tabl
         doc.append(f'Nom Banque : { info_banqu[0]}\n')
         doc.append(f'RIB : { info_banqu[1]}\n')
         doc.append(f'IBAN : { info_banqu[2]}\n')
-        doc.append(f'BIC : { info_banqu[3]}\n\n')
+        doc.append(f'BIC : { info_banqu[3]}\n')
         
         
 
@@ -113,3 +113,5 @@ def convert_pdf(id_utilisateur, info_facture, info_entreprise, info_client, tabl
 
     # Génération du PDF
     doc.generate_pdf(chemin_pdf, clean_tex=True)
+
+    

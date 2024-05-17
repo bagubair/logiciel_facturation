@@ -103,30 +103,19 @@ class TableArticleDevis():
         self.list_article[nb] = new_info
 
 
-
-    def supprime_article(self, indx):
-        #print("indx",indx)
-        new_y = self.list_article[indx].supprime(indx)
-        if indx != (len(self.list_article)-1):
-            for i in range(indx+1 , len(self.list_article)):
-                #print("i :", i)
-                self.list_article[i].mise_jour(i, new_y)
-                self.list_article[i].modif_tags(i, i-1)
-
+    def supprime_article(self, indx, new_y):
+        self.y = new_y
         self.list_article.pop(indx)
         self.nb -= 1
 
-        self.canv_devis.coords("ajoute", 20, new_y)
-        self.canv_devis.coords("linge_3",15,new_y +40 , 990,new_y+40)
-        self.update_places(new_y)
+        self.canv_devis.coords("ajoute", 20, self.y)
+        self.canv_devis.coords("linge_3",15,self.y +40 , 990,self.y+40)
+        self.update_places(self.y)
 
         self.canv_devis.update_idletasks()  
         self.canv_devis.configure(scrollregion=self.canv_devis.bbox("all"))
 
-
-        #article_sup = self.canv_devis.find_withtag(f"article_{indx}")
-        #self.canv_devis.delete(article_sup)
-        #self.y -= 110
+    
 
 
     def get_info(self):

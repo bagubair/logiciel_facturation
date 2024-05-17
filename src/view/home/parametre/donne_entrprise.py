@@ -30,6 +30,7 @@ class GereEntrprise():
         
         requt_entrpris = f"SELECT * FROM entreprise WHERE id_utilisateur = '{self.id_utilisateur}' ;"
         tous_ifos = self.BDD.execute_requete(requt_entrpris)
+        
         if (len(tous_ifos)!= 0) :
 
             self.nom_entr = tous_ifos[0][0]

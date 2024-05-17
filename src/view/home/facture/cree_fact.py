@@ -222,10 +222,10 @@ class Facture:
         requet_cl = self.BDD.execute_requete(requet_cl)
         if (len(requet_cl) == 0 ):
             #si le client n'est pas encore dans table client , on va l'ajouter
-            requet_cl = "INSERT INTO client (num, nom, prenom, adresse, tel_fax, mobil, id_utilisateur) \
-                    VALUES(%s, %s, %s, %s, %s, %s, %s )" 
+            requet_cl = "INSERT INTO client (num, nom, prenom, adresse, tel_fax, mobil, coment,id_utilisateur) \
+                    VALUES(%s, %s, %s, %s, %s, %s, %s, %s )" 
 
-            valeurs = (ref_client, donnees_client[0], donnees_client[1], donnees_client[2], donnees_client[3], donnees_client[4] , self.id_utilisateur )
+            valeurs = (ref_client, donnees_client[0], donnees_client[1], donnees_client[2], donnees_client[3], donnees_client[4] ,"", self.id_utilisateur ) #on mettre comentaire vide pour q'il prend pas valeur None
 
             self.BDD.execute_requete(requet_cl,valeurs)
         else:
@@ -234,6 +234,7 @@ class Facture:
         #on chereche si les info d'entreprise deja exite dans BDD , sinon on vas l'ajouter , et relier avec l'utilisateur 
         requet_entrprise = f"SELECT * FROM entreprise WHERE id_utilisateur = '{self.id_utilisateur}';"
         requet_entrprise = self.BDD.execute_requete(requet_entrprise)
+        print(requet_entrprise)
         if (len(requet_entrprise) == 0 ):
             #on ajoute les infos en reliant avec l'tilisateu , pour que la prochin fois , pas obliger de sissir tous infos
             requet_entrprise = "INSERT INTO entreprise (nom_entreprise, adresse, mail, telephone, nb_ser, logo, id_utilisateur) \
@@ -241,6 +242,7 @@ class Facture:
             valeurs = (donnees_entrpris[0], donnees_entrpris[1], donnees_entrpris[2], donnees_entrpris[3], donnees_entrpris[4], donnees_entrpris[5], self.id_utilisateur)
 
             requet_entrprise = self.BDD.execute_requete(requet_entrprise, valeurs)
+            print(donnees_entrpris[5])
         else:
             pass #si deja existe
 

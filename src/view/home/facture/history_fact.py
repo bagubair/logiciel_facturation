@@ -68,11 +68,9 @@ class HistoryFacture:
         self.listbox = tk.Listbox(self.canvas, selectmode=tk.SINGLE,  width=650, height=400,font=(POLICE,10))
         self.canvas.create_window(500, 200, width=950, height=400, anchor="n", window=self.listbox, tags="listbox")
 
-        self.lire = tk.Button(self.canvas, width=10, height=2,text="Lire", command=lambda:self.lire_fact() ,bg=COULEUR_PRINCIPALE,font=(POLICE, 11,"bold"))
-        self.canvas.create_window(390,610 , anchor="n", window=self.lire,tags="lire")
         
         self.modf = tk.Button(self.canvas, width=10, height=2,text="Modifier", command=lambda:self.modf_fact() ,bg=COULEUR_PRINCIPALE,font=(POLICE, 11,"bold"))
-        self.canvas.create_window(510,610 , anchor="n", window=self.modf,tags="lire")
+        self.canvas.create_window(420,610 , anchor="n", window=self.modf,tags="lire")
         
         self.supprim = tk.Button(self.canvas, width=10, height=2,text="Supprimer", command=lambda:self.supprim_fact() ,bg=COULEUR_PRINCIPALE,font=(POLICE, 11,"bold"))
         self.canvas.create_window(630,610 , anchor="n", window=self.supprim,tags="lire")
@@ -98,7 +96,7 @@ class HistoryFacture:
                         WHERE  facture.id_utilisateur = {self.id_utilisateur}"""
         self.requet_tous_fact = self.BDD.execute_requete(self.requet_tous_fact)
 
-        print(self.requet_tous_fact)
+        
         self.listbox.delete(0, tk.END)
         for fact in self.requet_tous_fact:
             nom_client = f"{fact[1]} {fact[2]}"

@@ -156,29 +156,20 @@ class TableConvertArticle():
         self.canv_fact.configure(scrollregion=self.canv_fact.bbox("all"))
 
 
-    def supprime_article(self, indx):
-        #print("indx",indx)
-        new_y = self.list_article[indx].supprime(indx)
-        if indx != (len(self.list_article)-1):
-            for i in range(indx+1 , len(self.list_article)):
-                #print("i :", i)
-                self.list_article[i].mise_jour(i, new_y)
-                self.list_article[i].modif_tags(i, i-1)
-
+    def supprime_article(self, indx, new_y):
+        self.y = new_y
         self.list_article.pop(indx)
         self.nb -= 1
 
-        self.canv_fact.coords("ajoute", 20, new_y)
-        self.canv_fact.coords("linge_3",15,new_y +40 , 990,new_y+40)
-        self.update_places(new_y)
+        self.canv_fact.coords("ajoute", 20, self.y)
+        self.canv_fact.coords("linge_3",15,self.y +40 , 990,self.y+40)
+        self.update_places(self.y)
 
         self.canv_fact.update_idletasks()  
         self.canv_fact.configure(scrollregion=self.canv_fact.bbox("all"))
 
 
-        #article_sup = self.canv_fact.find_withtag(f"article_{indx}")
-        #self.canv_fact.delete(article_sup)
-        #self.y -= 110
+        
 
     def modif_element(self, nb, new_info):
         """ cette fonction pour modifier un element dans liste article """

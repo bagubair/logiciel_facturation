@@ -17,7 +17,7 @@ class RootPrincipal:
         self.root.title("Facturation")
         self.root.protocol("WM_DELETE_WINDOW", self.root.destroy)
         
-        self.basse_BDD = BaseDeDonnee("facturation", "emad_70", "439155")
+        self.basse_BDD = BaseDeDonnee("factur", "emad_70", "439155")
         self.basse_BDD.init_table()
 
         self.connec = Connection(self.root,self.basse_BDD)
