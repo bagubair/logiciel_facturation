@@ -1,58 +1,62 @@
-
-CREATE TABLE IF NOT EXISTS utilisateur(
-    ID SERIAL PRIMARY KEY,
-    prenom VARCHAR(30),
-    nom VARCHAR(30),
-    nom_utilisateur VARCHAR(30),
-    mot_passe VARCHAR(30),
-    tel VARCHAR(15)
+CREATE TABLE IF NOT EXISTS utilisateur (
+    ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    prenom TEXT,
+    nom TEXT,
+    nom_utilisateur TEXT UNIQUE NOT NULL,
+    mot_passe TEXT NOT NULL,
+    tel TEXT
 );
-CREATE TABLE IF NOT EXISTS entreprise(
-    nom_entreprise VARCHAR(30),
+
+CREATE TABLE IF NOT EXISTS entreprise (
+    id_utilisateur INTEGER PRIMARY KEY,
+    nom_entreprise TEXT,
     adresse TEXT,
-    mail VARCHAR(25),
-    telephone VARCHAR(20),
-    nb_ser VARCHAR(20),
+    mail TEXT,
+    telephone TEXT,
+    nb_ser TEXT,
     logo TEXT,
-    id_utilisateur INT REFERENCES utilisateur(ID) PRIMARY KEY -- ici referance a table utilisature ,, et prend la valeur de collon nom utilisateur , on relie chaque facture par l'artisant (entrprise)
+    FOREIGN KEY(id_utilisateur) REFERENCES utilisateur(ID)
 );
 
-CREATE TABLE IF NOT EXISTS client(
-    num VARCHAR(15) , -- numero de client commence par CL donc c'est une VARCHAR
-    nom VARCHAR(25),
-    prenom VARCHAR(25),
+CREATE TABLE IF NOT EXISTS client (
+    num TEXT,
+    nom TEXT,
+    prenom TEXT,
     adresse TEXT,
-    tel_fax VARCHAR(20),
-    mobil VARCHAR(20),
+    tel_fax TEXT,
+    mobil TEXT,
     coment TEXT,
-    id_utilisateur INT REFERENCES utilisateur(ID), -- ici referance a table utilisature ,, et prend la valeur de collon nom utilisateur , on relie l'utilisature avec ces clients 
-    PRIMARY KEY(num, id_utilisateur)
+    id_utilisateur INTEGER,
+    PRIMARY KEY (num, id_utilisateur),
+    FOREIGN KEY (id_utilisateur) REFERENCES utilisateur(ID)
 );
 
-
-CREATE TABLE IF NOT EXISTS facture(
-    num VARCHAR(15),  -- numero de facture commence par FAC donc c'est une VARCHAR
-    date_fac VARCHAR(20),  -- c'est une VARCHAR cet entree par Entry 
-    intervens TEXT, --ici tous les interventios de la facture ,, sra dans un lise , mais on va metre ici en type str 
+CREATE TABLE IF NOT EXISTS facture (
+    num TEXT,
+    date_fac TEXT,
+    intervens TEXT,
     remarque TEXT,
-    solde_du FLOAT,
-    info_pay TEXT,  -- il eura la date d'echnge et mod de pay
+    solde_du REAL,
+    info_pay TEXT,
     infos_banque TEXT,
-    signatur INT, -- valeur 1: bien signee et 0 non signee
-    id_utilisateur INT REFERENCES utilisateur(ID) , -- ici referance a table utilisature ,, et prend la valeur de collon nom utilisateur , on relie chaque facture par l'artisant(entrprise )
-    ref_client VARCHAR(15), -- ici referance au client , pren num client
-    PRIMARY KEY(num, id_utilisateur),
+    signatur INTEGER,
+    id_utilisateur INTEGER,
+    ref_client TEXT,
+    PRIMARY KEY (num, id_utilisateur),
+    FOREIGN KEY (id_utilisateur) REFERENCES utilisateur(ID),
     FOREIGN KEY (ref_client, id_utilisateur) REFERENCES client(num, id_utilisateur)
 );
-CREATE TABLE IF NOT EXISTS devis(
-    num VARCHAR(15),  -- numero de facture commence par FAC donc c'est une VARCHAR
-    date_devis VARCHAR(20),  -- c'est une VARCHAR cet entree par Entry 
-    intervens TEXT, --ici tous les interventios de la facture ,, sra dans un lise , mais on va metre ici en type str 
-    montant FLOAT,
+
+CREATE TABLE IF NOT EXISTS devis (
+    num TEXT,
+    date_devis TEXT,
+    intervens TEXT,
+    montant REAL,
     remarque TEXT,
-    signatur INT, -- valeur 1: bien signee et 0 non signee
-    id_utilisateur INT REFERENCES utilisateur(ID) , -- ici referance a table utilisature ,, et prend la valeur de collon nom utilisateur , on relie chaque facture par l'artisant(entrprise )
-    ref_client VARCHAR(15), -- ici referance au client , pren num client
-    PRIMARY KEY(num, id_utilisateur),
+    signatur INTEGER,
+    id_utilisateur INTEGER,
+    ref_client TEXT,
+    PRIMARY KEY (num, id_utilisateur),
+    FOREIGN KEY (id_utilisateur) REFERENCES utilisateur(ID),
     FOREIGN KEY (ref_client, id_utilisateur) REFERENCES client(num, id_utilisateur)
 );

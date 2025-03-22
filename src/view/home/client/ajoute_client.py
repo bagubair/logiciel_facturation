@@ -200,7 +200,7 @@ class AjouteClient():
                 messagebox.showerror("Erreur", "Désolé, ce client existe déjà.")
             else:
                 requet_cl = "INSERT INTO client (num, nom, prenom, adresse, tel_fax, mobil, coment, id_utilisateur) \
-                        VALUES(%s, %s, %s, %s, %s, %s, %s, %s )" 
+                        VALUES(?, ?, ?, ?, ?, ?, ?, ?);" 
 
                 valeurs = (num_client, nom_client, prenom, adresse, tel_fixe, mobil ,comet, self.id_utilisateur )
 

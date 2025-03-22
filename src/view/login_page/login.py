@@ -58,15 +58,18 @@ class Login:
 
 
     def on_configure(self, event):
-        if self.canvas:
+        if self.canvas and str(self.canvas.winfo_exists()) == "1":
             # Recalculer les dimensions de la fenêtre
             self.largeur = self.root.winfo_width()
             self.hauteur = self.root.winfo_height()
 
             self.canvas.config(width=self.largeur, height=self.hauteur)
-            x = int(self.root.winfo_width() / 2.7)
-            y = int(self.root.winfo_height() / 2.8)
+
+            if self.frame_login and str(self.frame_login.winfo_exists()) == "1":
+                x = int(self.root.winfo_width() / 2.7)
+                y = int(self.root.winfo_height() / 2.8)
             self.frame_login.place(x=x, y=y)
+
 
     def login(self):
         # Méthode à exécuter lorsque le bouton "Se connecter" est cliqué

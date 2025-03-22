@@ -183,7 +183,7 @@ class ConverDevis():
         if (len(requet_cl) == 0 ):
             #si le client n'est pas encore dans table client , on va l'ajouter
             requet_cl = "INSERT INTO client (num, nom, prenom, adresse, tel_fax, mobil,coment, id_utilisateur) \
-                    VALUES(%s, %s, %s, %s, %s, %s, %s, %s )" 
+                    VALUES(?, ?, ?, ?, ?, ?, ?, ? )" 
 
             valeurs = (ref_client, donnees_client[0], donnees_client[1], donnees_client[2], donnees_client[3], donnees_client[4] , "", self.id_utilisateur )
 
@@ -197,7 +197,7 @@ class ConverDevis():
         if (len(requet_entrprise) == 0 ):
             #on ajoute les infos en reliant avec l'tilisateu , pour que la prochin fois , pas obliger de sissir tous infos
             requet_entrprise = "INSERT INTO entreprise (nom_entreprise, adresse, mail, telephone, nb_ser, logo, id_utilisateur) \
-                    VALUES(%s, %s, %s, %s, %s, %s, %s )"
+                    VALUES(?, ?, ?, ?, ?, ?, ? )"
             valeurs = (donnees_entrpris[0], donnees_entrpris[1], donnees_entrpris[2], donnees_entrpris[3], donnees_entrpris[4], donnees_entrpris[5], self.id_utilisateur)
 
             requet_entrprise = self.BDD.execute_requete(requet_entrprise, valeurs)
@@ -208,7 +208,7 @@ class ConverDevis():
         #on ajoute dans table facture 
 
         requet_fact = "INSERT INTO facture (num, date_fac, intervens, remarque, solde_du , info_pay, infos_banque, signatur, id_utilisateur, ref_client) \
-                VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
         valeurs = (num_fact, date_fact, donnees_articles, remarque, solde, donnees_payee, doonees_banque, self.signature, self.id_utilisateur, ref_client)
         resultat = self.BDD.execute_requete(requet_fact, valeurs)
@@ -249,7 +249,7 @@ class ConverDevis():
         if (len(requet_cl) == 0 ):
             #si le client n'est pas encore dans table client , on va l'ajouter
             requet_cl = "INSERT INTO client (num, nom, prenom, adresse, tel_fax, mobil, id_utilisateur) \
-                    VALUES(%s, %s, %s, %s, %s, %s, %s )" 
+                    VALUES(?, ?, ?, ?, ?, ?, ? )" 
 
             valeurs = (ref_client, donnees_client[0], donnees_client[1], donnees_client[2], donnees_client[3], donnees_client[4] , self.id_utilisateur )
 
@@ -259,7 +259,7 @@ class ConverDevis():
         #on ajoute dans table facture 
 
         requet_fact = "INSERT INTO facture (num, date_fac, intervens, remarque, solde_du , info_pay, infos_banque, signatur, id_utilisateur, ref_client) \
-                VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         #ici on transmet les liste avec json.dumps , pour ajouter en basse donne 
         valeurs = (num_fact, date_fact, json.dumps(donnees_articles) , remarque, solde, json.dumps(donnees_payee), json.dumps(doonees_banque), self.signature, self.id_utilisateur, ref_client)
         resultat = self.BDD.execute_requete(requet_fact, valeurs)

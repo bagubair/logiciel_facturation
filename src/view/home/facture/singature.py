@@ -44,7 +44,7 @@ class SignatureFrame():
         self.draw = ImageDraw.Draw(self.signature_image)
 
     def save_signature(self):
-        filename = f"DATA/signature_{self.id_utilisateur}.png"
+        filename = os.path.join(DATA_DIR, f"signature_{self.id_utilisateur}.png")
         self.signature_image.save(filename)
         
         # Ouvrir l'image avec PIL

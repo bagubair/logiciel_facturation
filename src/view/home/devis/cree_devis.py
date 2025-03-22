@@ -195,7 +195,7 @@ class CreeDevis():
         if (len(requet_cl) == 0 ):
             #si le client n'est pas encore dans table client , on va l'ajouter
             requet_cl = "INSERT INTO client (num, nom, prenom, adresse, tel_fax, mobil, coment, id_utilisateur) \
-                    VALUES(%s, %s, %s, %s, %s, %s, %s, %s )" 
+                    VALUES(?, ?, ?, ?, ?, ?, ?, ? )" 
 
             valeurs = (ref_client, donnees_client[0], donnees_client[1], donnees_client[2], donnees_client[3], donnees_client[4],"" , self.id_utilisateur )
 
@@ -209,7 +209,7 @@ class CreeDevis():
         if (len(requet_entrprise) == 0 ):
             #on ajoute les infos en reliant avec l'tilisateu , pour que la prochin fois , pas obliger de sissir tous infos
             requet_entrprise = "INSERT INTO entreprise (nom_entreprise, adresse, mail, telephone, nb_ser, logo, id_utilisateur) \
-                    VALUES(%s, %s, %s, %s, %s, %s, %s )"
+                    VALUES(?, ?, ?, ?, ?, ?, ? )"
             valeurs = (donnees_entrpris[0], donnees_entrpris[1], donnees_entrpris[2], donnees_entrpris[3], donnees_entrpris[4], donnees_entrpris[5], self.id_utilisateur)
 
             requet_entrprise = self.BDD.execute_requete(requet_entrprise, valeurs)
@@ -222,7 +222,7 @@ class CreeDevis():
         if ( len(requet_devis) == 0 ):
             # si elle n'existe pas ou on la cree
             requet_devis = "INSERT INTO devis (num, date_devis, intervens, montant, remarque, signatur, id_utilisateur, ref_client) \
-                VALUES(%s, %s, %s, %s, %s, %s, %s, %s)"
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?)"
 
             valeurs = (num_devis, date_devis, donnees_articles, montant, remarque, self.signature , self.id_utilisateur, ref_client)
             resultat = self.BDD.execute_requete(requet_devis, valeurs)
@@ -234,7 +234,7 @@ class CreeDevis():
 
             #on ajoute la nouvelle 
             requet_devis = "INSERT INTO devis (num, date_devis, intervens, montant, remarque, signatur, id_utilisateur, ref_client) \
-                VALUES(%s, %s, %s, %s, %s, %s, %s, %s)"
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?)"
 
             valeurs = (num_devis, date_devis, donnees_articles, montant, remarque, self.signature , self.id_utilisateur, ref_client)
             resultat = self.BDD.execute_requete(requet_devis, valeurs)
@@ -278,7 +278,7 @@ class CreeDevis():
         if (len(requet_cl) == 0 ):
             #si le client n'est pas encore dans table client , on va l'ajouter
             requet_cl = "INSERT INTO client (num, nom, prenom, adresse, tel_fax, mobil, id_utilisateur) \
-                    VALUES(%s, %s, %s, %s, %s, %s, %s )" 
+                    VALUES(?, ?, ?, ?, ?, ?, ? )" 
 
             valeurs = (ref_client, donnees_client[0], donnees_client[1], donnees_client[2], donnees_client[3], donnees_client[4] , self.id_utilisateur )
 
@@ -292,7 +292,7 @@ class CreeDevis():
         if ( len(requet_devis) == 0 ):
             # si elle n'existe pas ou on la cree
             requet_devis = "INSERT INTO devis (num, date_devis, intervens, montant, remarque, signatur, id_utilisateur, ref_client) \
-                VALUES(%s, %s, %s, %s, %s, %s, %s, %s)"
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?)"
 
             valeurs = (num_devis, date_devis, json.dumps(self.infos_articles.get_info() ), montant, remarque, self.signature , self.id_utilisateur, ref_client)
             resultat = self.BDD.execute_requete(requet_devis, valeurs)
@@ -304,7 +304,7 @@ class CreeDevis():
 
             #on ajoute la nouvelle 
             requet_devis = "INSERT INTO devis (num, date_devis, intervens, montant, remarque, signatur, id_utilisateur, ref_client) \
-                VALUES(%s, %s, %s, %s, %s, %s, %s, %s)"
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?)"
 
             valeurs = (num_devis, date_devis, json.dumps(self.infos_articles.get_info() ), montant, remarque, self.signature , self.id_utilisateur, ref_client)
             resultat = self.BDD.execute_requete(requet_devis, valeurs)
